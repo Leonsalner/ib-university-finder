@@ -1,0 +1,14 @@
+university_id,name,city,country,application_system,living_cost_monthly,tuition_eu_default,tuition_noneu_default,baseline_requirement,english_requirement_default,student_life_url,last_verified,verified_by
+tu-delft,Delft University of Technology,Delft,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,IELTS 6.5 or TOEFL iBT 90 — exempt if English was an IB exam subject with a pass,,2026-08-13,AI-DRAFT
+eur,Erasmus University Rotterdam,Rotterdam,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-13,AI-DRAFT
+wur,Wageningen University & Research,Wageningen,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,IELTS 6.0 (min 6.0 speaking) or TOEFL iBT 80 (min 20 speaking) — or IB English A SL/HL 5; English B HL 6; English B SL 7,,2026-08-13,AI-DRAFT
+maastricht,Maastricht University,Maastricht,Netherlands,Studielink,,2694,18400,a school diploma equivalent to Dutch VWO,,,2026-08-13,AI-DRAFT
+tue,Eindhoven University of Technology,Eindhoven,Netherlands,Studielink,,2694,19200,a school diploma equivalent to Dutch VWO,,,2026-08-13,AI-DRAFT
+rug,University of Groningen,Groningen,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-13,AI-DRAFT
+uva,University of Amsterdam,Amsterdam,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-13,AI-DRAFT
+vu,Vrije Universiteit Amsterdam,Amsterdam,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-14,AI-DRAFT
+twente,University of Twente,Enschede,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-14,AI-DRAFT
+tilburg,Tilburg University,Tilburg,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-14,AI-DRAFT
+leiden,Leiden University,Leiden,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-14,AI-DRAFT
+radboud,Radboud University,Nijmegen,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-14,AI-DRAFT
+utrecht,Utrecht University,Utrecht,Netherlands,Studielink,,2694,,a school diploma equivalent to Dutch VWO,,,2026-08-14,AI-DRAFT

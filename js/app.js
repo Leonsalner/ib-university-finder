@@ -1,0 +1,250 @@
+// Wires the data layer to the filter state to the DOM.
+
+import { loadData } from './data.js';
+import {
+  createFilterState, applyFilters, sortRows, buildFacets, activeFilterCount, SORTS,
+} from './filters.js';
+import { loadShortlist, saveShortlist, toCsv, downloadCsv } from './shortlist.js';
+import {
+  renderCards, renderChips, renderSortOptions, renderSourceBanner, renderIssues,
+} from './render.js';
+
+const dom = {
+  banner: document.getElementById('source-banner'),
+  panel: document.getElementById('filter-panel'),
+  filtersCount: document.getElementById('filters-count'),
+  search: document.getElementById('f-search'),
+  points: document.getElementById('f-points'),
+  tuition: document.getElementById('f-tuition'),
+  subjects: document.getElementById('f-subjects'),
+  countries: document.getElementById('f-countries'),
+  languages: document.getElementById('f-languages'),
+  clear: document.getElementById('f-clear'),
+  sort: document.getElementById('f-sort'),
+  count: document.getElementById('result-count'),
+  loading: document.getElementById('loading'),
+  results: document.getElementById('results'),
+  empty: document.getElementById('empty-state'),
+  emptyTitle: document.getElementById('empty-title'),
+  emptyHint: document.getElementById('empty-hint'),
+  shortlistBar: document.getElementById('shortlist-bar'),
+  shortlistCount: document.getElementById('shortlist-count'),
+  shortlistOnly: document.getElementById('f-shortlist-only'),
+  exportCsv: document.getElementById('export-csv'),
+  print: document.getElementById('print-shortlist'),
+  clearShortlist: document.getElementById('clear-shortlist'),
+  issues: document.getElementById('issues'),
+  issuesSummary: document.getElementById('issues-summary'),
+  issuesList: document.getElementById('issues-list'),
+};
+
+const state = createFilterState();
+const shortlist = loadShortlist();
+let allRows = [];
+let facets = { subjectAreas: [], countries: [], languages: [] };
+let currentlyShown = 0;
+
+start();
+
+async function start() {
+  // Open on a wide screen, collapsed on a phone where it would push the
+  // results off the bottom of the page.
+  dom.panel.open = window.innerWidth >= 720;
+  dom.results.setAttribute('aria-busy', 'true');
+
+  try {
+    const { programmes, meta } = await loadData();
+    allRows = programmes;
+
+    renderSourceBanner(dom.banner, meta);
+    renderIssues(dom.issues, dom.issuesSummary, dom.issuesList, meta.issues);
+    renderSortOptions(dom.sort, SORTS, state.sort);
+
+    facets = buildFacets(allRows);
+    drawChips();
+
+    wireInputs();
+    update();
+  } catch (err) {
+    dom.banner.className = 'banner banner-danger';
+    dom.banner.textContent = `Could not load any university data (${err.message}). Try reloading.`;
+    dom.banner.hidden = false;
+  } finally {
+    dom.loading.hidden = true;
+    dom.results.removeAttribute('aria-busy');
+  }
+}
+
+function drawChips() {
+  renderChips(dom.subjects, facets.subjectAreas, state.subjectAreas, toggle(state.subjectAreas));
+  renderChips(dom.countries, facets.countries, state.countries, toggle(state.countries));
+  renderChips(dom.languages, facets.languages, state.languages, toggle(state.languages));
+}
+
+function toggle(set) {
+  return (value, checked) => {
+    if (checked) set.add(value); else set.delete(value);
+    update();
+  };
+}
+
+function wireInputs() {
+  dom.search.addEventListener('input', debounce(() => {
+    state.search = dom.search.value;
+    update();
+  }, 150));
+
+  // Debounced like the search box: typing "3000" otherwise renders four times,
+  // and the intermediate "under €3" and "under €30" states flash an empty list.
+  dom.points.addEventListener('input', debounce(() => {
+    state.myIbPoints = wholeNumber(dom.points.value);
+    update();
+  }, 150));
+
+  dom.tuition.addEventListener('input', debounce(() => {
+    state.maxTuition = wholeNumber(dom.tuition.value);
+    update();
+  }, 150));
+
+  dom.sort.addEventListener('change', () => {
+    state.sort = dom.sort.value;
+    update();
+  });
+
+  dom.clear.addEventListener('click', () => {
+    state.search = '';
+    state.maxTuition = null;
+    state.myIbPoints = null;
+    state.subjectAreas.clear();
+    state.countries.clear();
+    state.languages.clear();
+
+    dom.search.value = '';
+    dom.points.value = '';
+    dom.tuition.value = '';
+    // Re-render the chips rather than reaching into render.js's markup with a
+    // selector — a class rename there would silently break unchecking here.
+    drawChips();
+
+    update();
+  });
+
+  dom.shortlistOnly.addEventListener('change', () => {
+    state.shortlistOnly = dom.shortlistOnly.checked;
+    update();
+  });
+
+  dom.exportCsv.addEventListener('click', () => {
+    const rows = sortRows(allRows.filter((r) => shortlist.has(r.id)), state.sort);
+    const stamp = new Date().toISOString().slice(0, 10);
+    downloadCsv(`my-shortlist-${stamp}.csv`, toCsv(rows));
+  });
+
+  // Printing is scoped to the shortlist by the print stylesheet, so this only
+  // has to make sure the starred cards are the ones on screen.
+  dom.print.addEventListener('click', () => {
+    if (!state.shortlistOnly) {
+      state.shortlistOnly = true;
+      dom.shortlistOnly.checked = true;
+      update();
+    }
+    window.print();
+  });
+
+  dom.clearShortlist.addEventListener('click', () => {
+    const total = shortlist.size;
+    if (total === 0) return;
+    if (!window.confirm(`Remove all ${total} saved ${plural(total)} from your shortlist?`)) return;
+    shortlist.clear();
+    saveShortlist(shortlist);
+    state.shortlistOnly = false;
+    dom.shortlistOnly.checked = false;
+    update();
+  });
+}
+
+// Returns the new starred state so the card can update itself in place.
+function onToggleStar(id) {
+  const starred = !shortlist.has(id);
+  if (starred) shortlist.add(id); else shortlist.delete(id);
+
+  if (!saveShortlist(shortlist)) {
+    dom.shortlistCount.textContent =
+      'Your browser is blocking storage, so this list will disappear when you close the tab.';
+    return starred;
+  }
+
+  // Only a full rebuild when the row has to leave the list.
+  if (state.shortlistOnly) update(); else renderCounts(currentlyShown);
+  return starred;
+}
+
+function update() {
+  // Turning off an empty shortlist view belongs here, before rendering — not
+  // as a side effect hidden inside the count update.
+  if (state.shortlistOnly && shortlist.size === 0) {
+    state.shortlistOnly = false;
+    dom.shortlistOnly.checked = false;
+  }
+
+  const rows = sortRows(applyFilters(allRows, state, shortlist), state.sort);
+  currentlyShown = rows.length;
+
+  renderCards(dom.results, rows, { state, shortlist, onToggleStar });
+  renderEmptyState(rows.length);
+  renderCounts(rows.length);
+}
+
+function renderCounts(shown) {
+  const active = activeFilterCount(state);
+  const scope = state.shortlistOnly ? ' in your shortlist' : '';
+
+  dom.count.textContent = active === 0 && !state.shortlistOnly
+    ? `${shown} ${plural(shown)}`
+    : `${shown} of ${allRows.length} ${plural(allRows.length)}${scope}`;
+
+  dom.filtersCount.textContent = active === 0 ? '' : `${active} active`;
+  dom.clear.disabled = active === 0;
+
+  const saved = shortlist.size;
+  dom.shortlistBar.hidden = saved === 0;
+  if (saved > 0) dom.shortlistCount.textContent = `★ ${saved} saved ${plural(saved)}`;
+}
+
+function renderEmptyState(shown) {
+  if (shown > 0) {
+    dom.empty.hidden = true;
+    return;
+  }
+  dom.empty.hidden = false;
+
+  if (state.shortlistOnly && shortlist.size === 0) {
+    dom.emptyTitle.textContent = 'Your shortlist is empty.';
+    dom.emptyHint.textContent = 'Tap the ☆ on any programme to save it here.';
+  } else if (activeFilterCount(state) === 0) {
+    dom.emptyTitle.textContent = 'No programmes in the spreadsheet yet.';
+    dom.emptyHint.textContent = 'Add some rows to the Google Sheet and reload.';
+  } else {
+    dom.emptyTitle.textContent = 'No programmes match these filters.';
+    dom.emptyHint.textContent = 'Try raising the tuition limit, or removing a country.';
+  }
+}
+
+function plural(n) {
+  return n === 1 ? 'programme' : 'programmes';
+}
+
+function wholeNumber(value) {
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+  const n = Number(trimmed);
+  return Number.isFinite(n) ? n : null;
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}

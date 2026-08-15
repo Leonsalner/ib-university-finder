@@ -1,0 +1,20 @@
+# Windows / OneDrive clutter
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# macOS, for whoever picks this up next
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Backups and half-written files — never commit these
+*.bak
+*.new
+*~
+
+# Node, if anyone ever adds tooling. The site itself needs none.
+node_modules/
