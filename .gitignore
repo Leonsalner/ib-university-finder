@@ -18,3 +18,8 @@ ehthumbs.db
 
 # Node, if anyone ever adds tooling. The site itself needs none.
 node_modules/
+
+# Importer output. These are intermediates: an importer writes one, its rows get
+# merged into data/programmes.csv, and the file has no further use. Re-run the
+# importer to recreate it. tools/tcd-rows.csv was never committed either.
+tools/*-rows.csv
