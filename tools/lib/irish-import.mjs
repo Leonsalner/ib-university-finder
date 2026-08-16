@@ -22,6 +22,12 @@ import { fetchCaoPoints, caoNote } from './cao-points.mjs';
  * @param {(page: string, href: string) => string|null} cfg.caoCode
  *        pulls the CAO code from a course page's text (or from its URL)
  * @param {(title: string) => boolean} [cfg.skip]  extra per-university filter
+ * @param {(page: string) => {eu?: number, noneu?: number}} [cfg.fees]
+ *        per-course fees, only where the university publishes an unambiguous
+ *        figure on the course page. Left unset everywhere it is ambiguous:
+ *        DCU prints "Student Contribution €2,543. EU Status Fee €5,922" without
+ *        saying whether the second includes the first, and a wrong fee is worse
+ *        than a blank one, which the site labels "Not published".
  * @param {string} cfg.out            file to write, relative to tools/
  */
 export async function importUniversity(cfg) {
@@ -44,6 +50,7 @@ export async function importUniversity(cfg) {
   const nextId = idMaker(cfg.universityId);
   const rows = [];
   const skipped = { noCode: 0, notInCao: 0, aboveReach: 0 };
+  let withFees = 0;
 
   for (const link of links) {
     let text;
@@ -66,6 +73,8 @@ export async function importUniversity(cfg) {
     // to fit a fixed-width column ("Arts - Music - 3 years or 4 years  (BMus
     // or Chinese/European/Internation").
     const title = link.title.replace(/\s*\([A-Z]{2}\d{3}\)\s*$/, '').trim();
+    const fees = cfg.fees ? cfg.fees(text) : {};
+    if (fees.eu) withFees++;
     const needsMaths = /engineer|mathemat|physic|comput|actuarial|financ|econom/i.test(title);
 
     let ib = null;
@@ -104,6 +113,8 @@ export async function importUniversity(cfg) {
         // nothing to meet.
         ib_subjects: '',
         other_requirements: entry.latest.test ? 'Test, interview, portfolio or audition' : otherFor(title),
+        tuition_eu: fees.eu ?? '',
+        tuition_noneu: fees.noneu ?? '',
         application_deadline: '2027-02-01',
         official_url: link.href,
         last_verified: '2026-08-16',
@@ -136,6 +147,7 @@ export async function importUniversity(cfg) {
   const csv = rows.map((r) => toRow({ ...r.fields, deadline_notes: r.notes.filter(Boolean).join(' ') }));
   writeFileSync(new URL(`../${cfg.out}`, import.meta.url), `${csv.join('\n')}\n`);
   console.log(`  ${shared} rows share a CAO code with another programme and say so`);
+  if (cfg.fees) console.log(`  ${withFees} rows carry a published EU fee`);
   console.log(
     `${cfg.universityId}: wrote ${rows.length} rows to tools/${cfg.out}\n`
     + `  skipped ${skipped.noCode} with no CAO code, ${skipped.notInCao} not in the CAO Level 8 table\n`

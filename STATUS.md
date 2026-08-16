@@ -8,14 +8,14 @@ pick it up without re-deriving decisions. Update it when the state changes.
 
 ## State
 
-753 programmes · 20 universities · 2 countries · all checks passing.
+757 programmes · 20 universities · 2 countries · all checks passing.
 
 | Country | Universities | Programmes | Notes |
 |---|---|---|---|
 | Netherlands | 13 | 202 | **Complete** — every Dutch research university |
-| Ireland | 7 | 551 | **Complete** — every Irish university |
+| Ireland | 7 | 555 | **Complete** — every Irish university |
 
-Ireland breaks down as UCD 140, UL 87, Trinity 79, DCU 71, Maynooth 64,
+Ireland breaks down as UCD 140, UL 87, Trinity 83, DCU 71, Maynooth 64,
 UCC 56, Galway 54.
 
 **Every row is `AI-DRAFT`.** Nobody has verified a single one against an
@@ -25,15 +25,16 @@ official page. The site says so, loudly, on a banner and on every card.
 
 1. **Sign off the rows that matter.** Pick the 15–20 programmes actually being
    applied to, open each official page, and replace `AI-DRAFT` with real
-   initials. Do not attempt all 753.
-2. **Fees for the six new Irish universities.** `tuition_eu_default` is blank
-   for UCD, UCC, Galway, DCU, UL and Maynooth, so the tuition filter ignores
-   551 of the 753 rows. This is the largest hole in the dataset. Note that a
-   single default may not be right: UL publishes a *per-course* EU fee, and its
-   pages show both €5,662 and €7,366 depending on the course. Note also that
-   Ireland's Free Fees Initiative turns on three years' EU residency, which a
-   Slovak applicant arriving for the degree will not have — so the number that
-   matters here is the full EU fee, not the €3,000 student contribution.
+   initials. Do not attempt all 757.
+2. **Fees for UCD, UCC, DCU and Maynooth.** Still blank, so the tuition filter
+   ignores 331 of the 757 rows. UL (86 rows, per course) and Galway (54 rows,
+   one university-wide figure) are done. None of the other four publishes a fee
+   on the course page, so this means finding each fees page by hand.
+   DCU is the awkward one: its course pages print "Student Contribution €2,543.
+   EU Status Fee €5,922" without saying whether the second figure includes the
+   first, so it was left blank rather than guessed at. Galway's equivalent table
+   is explicit — €3,098 tuition + €2,500 contribution + €140 levy = €5,738
+   "Total EU Fee" — which is why Galway could be filled and DCU could not.
 3. **Connect the Google Sheet.** Two tabs, published to the web as CSV, URLs
    pasted into `js/config.js`. Until then the site reads `data/*.csv` from the
    repo and nobody can maintain it without Git.
@@ -46,24 +47,41 @@ official page. The site says so, loudly, on a banner and on every card.
 - 20 programmes have no deadline (18 Leiden, plus VU Law in Society and Tilburg
   Psychology, where the university lists several dates without saying which is
   the application deadline).
-- 179 have no English requirement — mostly the Dutch universities that do not
-  publish one per programme.
+- 746 of 757 have no English requirement — the Dutch universities mostly do not
+  publish one per programme, and none of the six new Irish universities has had
+  its university-level default filled in yet.
 - `student_life_url` is empty everywhere. Never invent these.
 - Subject areas are keyword-mapped from course titles across all seven Irish
   universities, and a few are rough.
-- The six new Irish universities have **no fees, no baseline requirement and no
-  English requirement** at university level — blank, meaning nobody has checked.
-  See job 2 above.
-- **358 of the 551 Irish rows have a blank `ib_subjects`.** Only UCD and
+- The six new Irish universities have **no baseline requirement and no English
+  requirement** at university level — blank, meaning nobody has checked. Fees
+  are done for UL and Galway only; see job 2.
+- **368 of the 555 Irish rows have a blank `ib_subjects`.** Only UCD and
   Trinity publish subject requirements per course; the other five do not, so
-  blank here means "not checked", not "nothing to meet".
-- **Trinity's 59 `ib_subjects = none` rows should be re-checked.**
-  `tools/import-tcd.mjs` writes `none` whenever it fails to find an
-  "International Baccalaureate:" line on the page, which quietly turns "not
-  found" into "the university says there is no requirement" — exactly the
-  distinction this project decided to keep. The newer importers write blank in
-  that case. Left as-is rather than silently rewritten, because the fix is to
-  check the pages, not to change the value.
+  blank here means "not checked", not "nothing to meet". A further 7 Trinity
+  rows say `none`, and there that is verified: Trinity runs its "Admission
+  Requirements" heading straight into "English Language Requirements" on those
+  pages, which is how it says a course asks for no particular subjects.
+
+## Bugs found and fixed, so they are not reintroduced
+
+- **A capped regex silently became "no requirement" (fixed 2026-08-16).**
+  `import-tcd.mjs` captured the text after "International Baccalaureate:" with
+  a 110-character limit. Trinity's requirements routinely run longer than that
+  ("SL Grade 5 Mathematics HL Grade 5 in two of Physics, Chemistry, Biology,
+  ..."), so the match failed outright and the code fell through to writing
+  `none` — telling a student there was no subject requirement where Trinity
+  demands several. **39 of 79 rows were wrong.** Trinity now states a real
+  subject requirement on 66 rows where it managed 20 before.
+
+  The lesson is not "the number 110 was too small". It is that the failure
+  branch of a parser must never be the reassuring answer. Every importer here
+  now writes blank — "not checked" — when it cannot read something, and only
+  writes `none` on positive evidence that the university means none.
+
+- **Stream courses inherit from a parent page.** Trinity's "Chemistry: Chemical
+  Sciences" does not repeat the requirement; it links to the parent course that
+  carries it. The importer follows that link once, which recovered 15 rows.
 
 ## Decisions already made, so they are not relitigated
 
@@ -102,7 +120,7 @@ official page. The site says so, loudly, on a banner and on every card.
 - **Netherlands** admits on *subjects*, not totals — only 1 of 202 Dutch rows
   has a points minimum, and that is correct, not missing data.
 - **Ireland** publishes a CAO cutoff per course and an official IB conversion,
-  which is why 540 of the 551 Irish rows have a number. It also issues **no
+  which is why 542 of the 555 Irish rows have a number. It also issues **no
   conditional offers** — decisions arrive mid-August.
 - **Where each Irish university hides its data**, since finding this again was
   most of the work: UCD's course list is drawn by JavaScript from an internal
@@ -135,11 +153,11 @@ node tools/import-ucd.mjs       # writes tools/ucd-rows.csv, does not merge
 ```
 
 `tools/lib/cao-points.mjs` parses the CAO's Level 8 points table and is shared
-by all six. `tools/lib/irish-import.mjs` is the whole flow for the five
+by all seven. `tools/lib/irish-import.mjs` is the whole flow for the five
 cutoff-only universities, so `import-ucc.mjs` and its siblings are just a list
-URL, a link pattern and a CAO-code pattern. UCD stands alone because it
-publishes an IB minimum outright. `import-tcd.mjs` predates all of this and
-inlines its own copies on purpose — it is the record of how the Trinity rows
-were made.
+URL, a link pattern and a CAO-code pattern. Two stand alone: `import-ucd.mjs`,
+because UCD publishes an IB minimum outright, and `import-tcd.mjs`, because
+Trinity states a subject requirement per course and hides some of them on
+parent pages.
 
 Never open the CSVs in Excel — see MAINTENANCE.md.

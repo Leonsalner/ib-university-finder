@@ -1,13 +1,35 @@
 // One-off import: Trinity College Dublin undergraduate courses -> programmes.csv rows.
 //
-// Trinity publishes, on every course page, the CAO points cutoff with its year,
-// the CAO code, and an explicit "International Baccalaureate:" requirement line.
-// That is enough to fill ib_points_min honestly for the first time.
+//   node tools/import-tcd.mjs        writes tools/tcd-rows.csv
+//
+// Trinity is the only Irish university besides UCD that states a subject
+// requirement per course, under an "International Baccalaureate:" heading in
+// its Admission Requirements block. That block is the reason this importer
+// exists in its own file.
+//
+// This file was rewritten on 2026-08-16 to fix a bug and to move its points on
+// to the same source as the other six. Both are worth knowing about:
+//
+//   * The original capped the captured requirement at 110 characters. Trinity's
+//     real requirements are routinely longer ("SL Grade 5 Mathematics HL Grade 5
+//     in two of Physics, Chemistry, Biology, ..."), so the match failed
+//     outright and the code fell through to writing `none` — telling a student
+//     there was no subject requirement where Trinity demands several. 39 of the
+//     79 rows were wrong. There is now no cap, and a failure to find the block
+//     writes blank ("not checked"), never `none`.
+//
+//   * Points came from the cutoff printed on Trinity's own page. They now come
+//     from the CAO table, which alone says whether a cutoff was a real cutoff,
+//     an every-qualified-applicant year, or a score that still needed a test or
+//     a random draw. See tools/lib/cao-points.mjs.
 
 import { writeFileSync } from 'node:fs';
+import { getHtml, toText, lowestIB, areasFor, otherFor, toRow } from './lib/ireland.mjs';
+import { fetchCaoPoints, caoNote } from './lib/cao-points.mjs';
 
 const BASE = 'https://www.tcd.ie';
-const list = await (await fetch(`${BASE}/courses/undergraduate/a-z-of-ug-courses/`)).text();
+const cao = await fetchCaoPoints();
+const list = await getHtml(`${BASE}/courses/undergraduate/a-z-of-ug-courses/`);
 
 const links = [...list.matchAll(/href="(\/courses\/undergraduate\/courses\/[a-z0-9-]+\/?)"[^>]*>([^<]{4,90})</g)]
   .map((m) => ({ h: m[1], t: m[2].replace(/\s+/g, ' ').trim() }))
@@ -20,78 +42,116 @@ const links = [...list.matchAll(/href="(\/courses\/undergraduate\/courses\/[a-z0
 
 console.log(`courses to fetch: ${links.length}`);
 
-// CAO's official conversion, from the 2026 EU/EFTA guidelines document.
-const TABLE = [[45,600],[44,600],[43,594],[42,577],[41,565],[40,553],[39,541],[38,520],[37,508],[36,497],
-               [35,481],[34,466],[33,453],[32,442],[31,430],[30,412],[29,400],[28,389],[27,379],[26,368],[25,359],[24,350]];
-const lowestIB = (need) => {
-  const ok = TABLE.filter(([, p]) => p >= need).map(([ib]) => ib);
-  return ok.length ? Math.min(...ok) : null;
+// Ids are built the way the original built them, and must stay that way: a
+// shortlist saved in a browser stores these strings.
+const seen = new Set();
+const idFor = (href) => {
+  const stem = `tcd-${href.replace('/courses/undergraduate/courses/', '').replace(/\/$/, '').slice(0, 30)}`;
+  let id = stem;
+  for (let n = 2; seen.has(id); n++) id = `${stem}-${n}`;
+  seen.add(id);
+  return id;
 };
 
-const SUBJ = [
-  [/comput|software|information systems/i, 'Computer Science'],
-  [/engineer/i, 'Engineering'],
-  [/mathemat/i, 'Mathematics'],
-  [/physic|astro/i, 'Physics'],
-  [/chemi/i, 'Chemistry'],
-  [/biolog|biochem|botany|zoolog|genetic|immunolog|microbiolog|neuroscience|physiolog|biomedical sci/i, 'Biology & Life Sciences'],
-  [/environment|geoscience|geography|earth/i, 'Environmental Sciences'],
-  [/medicine|dental|pharmac|nursing|health|nutrition|radiation|therap|speech|midwifer/i, 'Medicine & Health'],
-  [/psycholog/i, 'Psychology'],
-  [/econom/i, 'Economics'],
-  [/business|management|commerce/i, 'Business & Management'],
-  [/\blaw\b|legal/i, 'Law'],
-  [/politic|international relations|european studies|global/i, 'Politics & International Relations'],
-  [/sociolog|social (work|studies|policy|science)|anthropol/i, 'Sociology & Anthropology'],
-  [/histor|ancient|classic|archaeolog/i, 'History'],
-  [/philosoph/i, 'Philosophy'],
-  [/language|linguist|english studies|french|german|spanish|italian|russian|polish|literature|classical languages/i, 'Languages & Literature'],
-  [/film|media|journalis/i, 'Media & Communication'],
-  [/\bart\b|art history|music|drama|theatre|design|visual/i, 'Art & Design'],
-  [/architect/i, 'Architecture'],
-  [/education|teaching/i, 'Education'],
-];
-const areasFor = (n) => [...new Set(SUBJ.filter(([re]) => re.test(n)).map(([, a]) => a))].slice(0, 3).join('; ') || 'Liberal Arts';
-
-const esc = (v) => (/[",\r\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
 const rows = [];
-let skipped = 0;
+const counts = { subjects: 0, inherited: 0, none: 0, unchecked: 0, noCutoff: 0 };
+
+// The requirement runs from the IB heading to whatever section comes next. No
+// length cap: capping it is what broke this before.
+const ibFrom = (txt) => {
+  const m = txt.match(
+    /International Baccalaureate:?\s*([^]*?)(?=English Language Requirements|Course Fees|Apply To apply|Advanced Entry|$)/i,
+  );
+  return m && m[1].trim() ? m[1].trim().replace(/\s+/g, ' ') : null;
+};
 
 for (const c of links) {
-  const html = await (await fetch(BASE + c.h)).text();
-  const txt = html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
-  const pts = txt.match(/CAO Points\s*(\d{3})\s*\((\d{4})\)/i);
-  if (!pts) { skipped++; continue; }
-  const cao = +pts[1], year = pts[2];
+  const html = await getHtml(BASE + c.h);
+  const txt = toText(html);
   const code = (txt.match(/CAO Code\s*([A-Z]{2}\d{3})/i) || [])[1] || '';
-  const ibReq = (txt.match(/International Baccalaureate:\s*([^]{0,110}?)(?=English Language Requirements|Course Fees|Advanced GCE|Leaving Certificate|Apply|$)/i) || [])[1];
-  const subjects = ibReq ? `IB ${ibReq.trim().replace(/\s+/g, ' ')}` : 'none';
-  const needsMaths = /mathemat/i.test(subjects);
 
-  let ib = lowestIB(cao);
-  const base = `Last year's CAO cutoff was ${cao} points (${year})${code ? `; CAO code ${code}` : ''}. Cutoffs are set by demand each August and move year to year — this is not a guaranteed minimum.`;
-  let note;
-  if (ib === null && cao <= 625 && needsMaths) {
-    ib = lowestIB(cao - 25);
-    note = `${base} Reachable only with the 25 bonus points for HL Maths at grade 4 or better.`;
-  } else if (ib === null) {
-    note = `${base} ABOVE the 625 points an IB student can reach (45 plus the maths bonus) because the cutoff includes a separate assessment such as the HPAT test or an audition, so no IB equivalent can be given.`;
+  let subjects = ibFrom(txt);
+  const extra = [];
+
+  if (subjects) {
+    counts.subjects++;
+  } else if (/view the main/i.test(txt)) {
+    // Streams of a larger course ("Chemistry: Chemical Sciences") do not repeat
+    // the requirement; they link to the parent course that carries it. Follow
+    // that link once — the requirement is genuinely the same one.
+    const parent = (html.match(/id="admissions-requirements"[^]*?view the main\s*<a href="([^"]+)"/i) || [])[1];
+    const parentTitle = (html.match(/id="admissions-requirements"[^]*?view the main\s*<a href="[^"]+"[^>]*>([^<]+)</i) || [])[1];
+    subjects = parent ? ibFrom(toText(await getHtml(parent))) : null;
+    if (subjects) {
+      counts.inherited++;
+      extra.push(`Entry requirements are those of the parent course, ${(parentTitle || '').trim()}.`);
+    } else {
+      counts.unchecked++;
+      subjects = '';
+    }
+  } else if (/Admission Requirements\s*English Language Requirements/i.test(txt)) {
+    // Trinity ran the two headings together, which is how it says a course has
+    // no subject requirement beyond the baseline diploma. That is a real
+    // "none", not a missing value.
+    subjects = 'none';
+    counts.none++;
   } else {
-    note = base + (needsMaths ? ' A grade 4+ in HL Maths adds 25 bonus points, so one point lower may suffice.' : '');
+    // An admissions block written as prose rather than as a qualifications
+    // table — a dual degree, or a restricted-entry course with a questionnaire
+    // or an interview. There is no IB line to read, so the field stays blank
+    // ("not checked") and the reader is pointed at the page.
+    subjects = '';
+    counts.unchecked++;
+    extra.push('Trinity describes entry to this course in prose rather than as a subject list — read the official page.');
   }
 
-  const name = c.t;
-  const other = /medicine|dental science/i.test(name) ? 'HPAT admission test'
-              : /music education/i.test(name) ? 'Audition or portfolio' : '';
+  const entry = cao.get(code);
+  const needsMaths = /mathemat/i.test(subjects) || /engineer|mathemat|physic|comput/i.test(c.t);
+  const notes = [];
+  let ib = null;
 
-  rows.push([
-    'tcd-' + c.h.replace(/\/courses\/undergraduate\/courses\//, '').replace(/\/$/, '').slice(0, 30),
-    'tcd', '', name, '', areasFor(name), 'English',
-    ib === null ? '' : String(ib), subjects, other,
-    '', '', '', '2027-02-01', note,
-    BASE + c.h, '2026-08-15', 'AI-DRAFT',
-  ].map(esc).join(','));
+  if (entry && entry.latest.points !== null) {
+    notes.push(caoNote(entry));
+    ib = lowestIB(entry.latest.points);
+    if (ib === null && needsMaths) {
+      ib = lowestIB(entry.latest.points - 25);
+      if (ib !== null) notes.push('Reachable only with the 25 bonus points for HL Maths at grade 4 or better.');
+    } else if (ib !== null && needsMaths) {
+      notes.push('A grade 4+ in HL Maths adds 25 bonus points, so one point lower may suffice.');
+    }
+    if (ib === null) {
+      notes.push('That is ABOVE the 625 points an IB student can reach (45 plus the maths bonus), so no IB equivalent can be given.');
+    }
+  } else if (entry) {
+    notes.push(caoNote(entry));
+  } else {
+    counts.noCutoff++;
+    notes.push(`No CAO cutoff is published for this course${code ? ` (code ${code})` : ''}.`);
+  }
+
+  rows.push(toRow({
+    programme_id: idFor(c.h),
+    university_id: 'tcd',
+    programme: c.t,
+    subject_area: areasFor(c.t),
+    language: 'English',
+    ib_points_min: ib === null ? '' : String(ib),
+    ib_subjects: subjects,
+    other_requirements: entry?.latest.test ? 'Test, interview, portfolio or audition' : otherFor(c.t),
+    application_deadline: '2027-02-01',
+    deadline_notes: [...notes, ...extra].filter(Boolean).join(' '),
+    official_url: BASE + c.h,
+    last_verified: '2026-08-16',
+    verified_by: 'AI-DRAFT',
+  }));
 }
 
-writeFileSync(new URL('./tcd-rows.csv', import.meta.url), rows.join('\n') + '\n');
-console.log(`rows written: ${rows.length}, skipped (no published cutoff): ${skipped}`);
+writeFileSync(new URL('./tcd-rows.csv', import.meta.url), `${rows.join('\n')}\n`);
+console.log(
+  `rows written: ${rows.length}\n`
+  + `  ${counts.subjects} with a stated IB subject requirement\n`
+  + `  ${counts.inherited} inherited from a parent course page\n`
+  + `  ${counts.none} where Trinity states none\n`
+  + `  ${counts.unchecked} left blank — entry described in prose, not as subjects\n`
+  + `  ${counts.noCutoff} with no CAO cutoff published`,
+);
