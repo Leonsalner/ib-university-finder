@@ -160,7 +160,13 @@ function starButton(row, shortlist, onToggleStar, article) {
 }
 
 function setStarState(button, row, starred) {
-  button.textContent = starred ? '★' : '☆';
+  // An outline bookmark that becomes a solid one. Swapping the symbol is a
+  // content change, and content changes always take effect; a card sets
+  // content-visibility: auto, and the browser skips style recalculation inside
+  // one, so a state carried only by CSS on [aria-pressed] can paint stale.
+  // The CSS colour change rides along on top of this, not instead of it.
+  if (!button.firstChild) button.append(icon('i-bookmark'));
+  button.firstChild.firstChild.setAttribute('href', starred ? '#i-bookmark-fill' : '#i-bookmark');
   button.setAttribute('aria-pressed', String(starred));
   button.setAttribute(
     'aria-label',
@@ -211,7 +217,21 @@ function externalLink(className, label, href) {
   link.href = href;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
+  // The icon says "this leaves the site" without spending a word on it.
+  link.append(icon('i-external'));
   return link;
+}
+
+// Icons come from the sprite in index.html, referenced rather than inlined so
+// the same path is not repeated 757 times in the DOM.
+function icon(id) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `#${id}`);
+  svg.append(use);
+  return svg;
 }
 
 function deadlineClass(row) {

@@ -70,6 +70,49 @@ official page. The site says so, loudly, on a banner and on every card.
   Requirements" heading straight into "English Language Requirements" on those
   pages, which is how it says a course asks for no particular subjects.
 
+## The look of it
+
+Redesigned on 2026-08-16. The rules it follows, so a later edit does not undo
+them by accident:
+
+- **One accent hue.** Amber and red are *states* — not checked, deadline passed
+  — and never decoration. Nothing else is coloured.
+- **Type is Geist**, loaded from Google Fonts with the full system stack behind
+  it, so a blocked or slow font costs character and nothing else. Figures use
+  `font-variant-numeric: tabular-nums` so points and fees line up column-wise
+  when two cards sit side by side.
+- **No emoji or dingbats.** Every icon is an SVG `<symbol>` in the sprite at the
+  top of `index.html`, referenced with `<use>`. The old `★`/`☆` rendered as
+  colour emoji on some platforms.
+- **Layout is asymmetric**: above 1080px the filters become a sticky rail beside
+  the results rather than a drawer above them. Below that they collapse to the
+  accordion, and `app.js` only auto-opens the panel at 1080px and up.
+- **Motion is transform and opacity only**, and the whole of it stops under
+  `prefers-reduced-motion: reduce`. Only the first ten cards animate in;
+  staggering 757 would queue animations nobody will ever see.
+- **Contrast is checked, not eyeballed.** Every text colour clears WCAG AA
+  (4.5:1) against its own background in both light and dark. `--ink-soft` and
+  `--ink-faint` both carry real text and both pass; anything paler than
+  `--ink-faint` is for rules and borders only, never for words.
+
+### Three traps this hit, all of which looked like working code
+
+- **`[hidden]` loses to any author `display` rule.** The attribute is only
+  `display: none` in the UA stylesheet, so `.skeletons { display: grid }` beat
+  it and the "hidden" loading block kept its space — pushing the first card
+  756px down, below the fold on a laptop. There is now a global
+  `[hidden] { display: none !important }`.
+- **`content-visibility: auto` skips style recalculation inside a card.** State
+  expressed only as CSS on an attribute selector *inside* a card can paint
+  stale; the card's own classes are fine, because the card is the containment
+  root. That is why the save button swaps which `<symbol>` it references rather
+  than only recolouring on `[aria-pressed]` — a content change always lands.
+  The old `★`/`☆` swap was accidentally immune to this. Prefer content over
+  style for anything that changes inside a card.
+- **A CSS `transform` on an inline element in the summary resolved to identity**
+  in testing, even set inline, while the same declaration on a `<div>` worked.
+  The filter chevron therefore shows one of two icons instead of rotating one.
+
 ## Bugs found and fixed, so they are not reintroduced
 
 - **A capped regex silently became "no requirement" (fixed 2026-08-16).**

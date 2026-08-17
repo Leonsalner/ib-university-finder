@@ -28,7 +28,10 @@ const dom = {
   emptyTitle: document.getElementById('empty-title'),
   emptyHint: document.getElementById('empty-hint'),
   shortlistBar: document.getElementById('shortlist-bar'),
-  shortlistCount: document.getElementById('shortlist-count'),
+  // The <p> holds an icon as well, so the text goes in its own span rather
+  // than through textContent on the parent, which would wipe the icon.
+  shortlistCount: document.getElementById('shortlist-count-text'),
+  mastheadStat: document.getElementById('masthead-stat'),
   shortlistOnly: document.getElementById('f-shortlist-only'),
   exportCsv: document.getElementById('export-csv'),
   print: document.getElementById('print-shortlist'),
@@ -47,9 +50,11 @@ let currentlyShown = 0;
 start();
 
 async function start() {
-  // Open on a wide screen, collapsed on a phone where it would push the
-  // results off the bottom of the page.
-  dom.panel.open = window.innerWidth >= 720;
+  // Open only where the panel is a sidebar beside the results (the 1080px
+  // breakpoint in styles.css). Below that it is a full-width drawer, and
+  // opening it pushes the first card off the bottom of the screen — measured at
+  // 1148px down on a 768px-wide tablet.
+  dom.panel.open = window.innerWidth >= 1080;
   dom.results.setAttribute('aria-busy', 'true');
 
   try {
@@ -62,6 +67,7 @@ async function start() {
 
     facets = buildFacets(allRows);
     drawChips();
+    renderMastheadStat();
 
     wireInputs();
     update();
@@ -79,6 +85,15 @@ function drawChips() {
   renderChips(dom.subjects, facets.subjectAreas, state.subjectAreas, toggle(state.subjectAreas));
   renderChips(dom.countries, facets.countries, state.countries, toggle(state.countries));
   renderChips(dom.languages, facets.languages, state.languages, toggle(state.languages));
+}
+
+// The scale of the dataset, stated once in the masthead. Counted from the rows
+// actually loaded, so it can never drift from what the page is showing.
+function renderMastheadStat() {
+  const universities = new Set(allRows.map((r) => r.university)).size;
+  const countries = new Set(allRows.map((r) => r.country).filter(Boolean)).size;
+  dom.mastheadStat.textContent =
+    `${allRows.length} programmes · ${universities} universities · ${countries} countries`;
 }
 
 function toggle(set) {
@@ -208,7 +223,7 @@ function renderCounts(shown) {
 
   const saved = shortlist.size;
   dom.shortlistBar.hidden = saved === 0;
-  if (saved > 0) dom.shortlistCount.textContent = `★ ${saved} saved ${plural(saved)}`;
+  if (saved > 0) dom.shortlistCount.textContent = `${saved} saved ${plural(saved)}`;
 }
 
 function renderEmptyState(shown) {
@@ -220,7 +235,7 @@ function renderEmptyState(shown) {
 
   if (state.shortlistOnly && shortlist.size === 0) {
     dom.emptyTitle.textContent = 'Your shortlist is empty.';
-    dom.emptyHint.textContent = 'Tap the ☆ on any programme to save it here.';
+    dom.emptyHint.textContent = 'Use the bookmark button on any programme to save it here.';
   } else if (activeFilterCount(state) === 0) {
     dom.emptyTitle.textContent = 'No programmes in the spreadsheet yet.';
     dom.emptyHint.textContent = 'Add some rows to the Google Sheet and reload.';

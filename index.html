@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IB University Finder — Europe</title>
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="European bachelor programmes, filtered by IB entry requirements, deadlines and tuition.">
+
+<!-- Geist, with a full system stack behind it. If Google Fonts is blocked or
+     slow the page still renders immediately in the fallback — display=swap and
+     the stack in styles.css mean a missing webfont costs nothing but character. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+
 <link rel="stylesheet" href="css/styles.css">
 <!-- Without these the browser discovers the modules in three waves — app.js,
      then what it imports, then what those import — and only asks for the CSVs
@@ -17,29 +27,100 @@
 </head>
 <body>
 
+<!-- One sprite, referenced with <use> everywhere. Inline rather than a file so
+     an icon can never arrive after the button it belongs in. -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6.5 3.75h11a1 1 0 0 1 1 1v15.5l-6.5-4.25-6.5 4.25V4.75a1 1 0 0 1 1-1Z"/>
+  </symbol>
+  <!-- The saved state is a different shape, not just a different colour. It has
+       to be, because a card sets content-visibility: auto and the browser skips
+       style recalculation for its descendants — a state expressed only as CSS
+       on an attribute selector inside a card can render stale. Swapping which
+       symbol is referenced changes content, which never goes stale. -->
+  <symbol id="i-bookmark-fill" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6.5 3.75h11a1 1 0 0 1 1 1v15.5l-6.5-4.25-6.5 4.25V4.75a1 1 0 0 1 1-1Z"/>
+  </symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m6 9 6 6 6-6"/>
+  </symbol>
+  <!-- Two chevrons rather than one rotated by CSS. A transform set on an inline
+       element in this subtree resolves to identity in testing, so the open and
+       closed states swap which icon is displayed instead. -->
+  <symbol id="i-chevron-up" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m6 15 6-6 6 6"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+  </symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3.75v11m0 0 4-4m-4 4-4-4M4.5 17.5v1.75a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V17.5"/>
+  </symbol>
+  <symbol id="i-print" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 9V4.25h10V9M7 18H5.25a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h13.5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H17"/>
+    <path d="M7 14.5h10v5.25H7z"/>
+  </symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.75 6.5h14.5M9.5 6.5V4.75h5V6.5M6.5 6.5l.75 12.25a1 1 0 0 0 1 .95h7.5a1 1 0 0 0 1-.95L17.5 6.5"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 4.75 3.5 19.25h17L12 4.75Z"/><path d="M12 10v4"/><path d="M12 17h.01"/>
+  </symbol>
+  <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 4.75h5.25V10M19 5l-7.5 7.5"/>
+    <path d="M18 14v5.25a1 1 0 0 1-1 1H5.75a1 1 0 0 1-1-1V7.75a1 1 0 0 1 1-1H11"/>
+  </symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8.25"/><path d="m15 9-2.1 4.9L8 16l2.1-4.9L15 9Z"/>
+  </symbol>
+</svg>
+
 <a href="#results" class="skip-link">Skip to results</a>
 
 <header class="site-header">
-  <h1>IB University Finder</h1>
-  <p class="tagline">European bachelor programmes, filtered by IB entry requirements.</p>
+  <div class="masthead">
+    <div class="masthead-text">
+      <h1>IB&nbsp;University Finder</h1>
+      <p class="tagline">European bachelor programmes, filtered by IB entry requirements.</p>
+    </div>
+    <p class="masthead-stat" id="masthead-stat" aria-hidden="true"></p>
+  </div>
 </header>
 
 <div id="source-banner" class="banner" role="status" hidden></div>
 
-<main>
+<main class="shell">
 
   <details class="filters" id="filter-panel">
     <summary>
       <span class="filters-title">Filters</span>
       <span class="filters-count" id="filters-count"></span>
+      <span class="filters-chevron">
+        <svg class="chevron-closed" aria-hidden="true"><use href="#i-chevron"/></svg>
+        <svg class="chevron-open" aria-hidden="true"><use href="#i-chevron-up"/></svg>
+      </span>
     </summary>
 
     <form id="filter-form" class="filter-form" autocomplete="off">
 
       <div class="field">
         <label for="f-search">Search</label>
-        <input type="search" id="f-search" name="search"
-               placeholder="University, city, programme, country">
+        <div class="input-wrap">
+          <svg class="input-icon" aria-hidden="true"><use href="#i-search"/></svg>
+          <input type="search" id="f-search" name="search"
+                 placeholder="University, city, programme, country">
+        </div>
       </div>
 
       <div class="field-row">
@@ -78,39 +159,60 @@
     </form>
   </details>
 
-  <div class="results-bar">
-    <p class="result-count" id="result-count" aria-live="polite"></p>
-    <div class="sort-field">
-      <label for="f-sort">Sort by</label>
-      <select id="f-sort"></select>
+  <div class="stream">
+
+    <div class="results-bar">
+      <p class="result-count" id="result-count" aria-live="polite"></p>
+      <div class="sort-field">
+        <label for="f-sort">Sort by</label>
+        <select id="f-sort"></select>
+      </div>
     </div>
+
+    <div class="shortlist-bar" id="shortlist-bar" hidden>
+      <p class="shortlist-count" id="shortlist-count">
+        <svg class="shortlist-icon" aria-hidden="true"><use href="#i-bookmark"/></svg>
+        <span id="shortlist-count-text"></span>
+      </p>
+      <label class="chip">
+        <input type="checkbox" id="f-shortlist-only">
+        <span>Only my shortlist</span>
+      </label>
+      <button type="button" id="export-csv" class="button">
+        <svg aria-hidden="true"><use href="#i-download"/></svg>CSV
+      </button>
+      <button type="button" id="print-shortlist" class="button">
+        <svg aria-hidden="true"><use href="#i-print"/></svg>Print
+      </button>
+      <button type="button" id="clear-shortlist" class="button button-quiet">
+        <svg aria-hidden="true"><use href="#i-trash"/></svg>Clear
+      </button>
+    </div>
+
+    <!-- Skeletons rather than a spinner: they occupy the space the cards will
+         take, so nothing jumps when the data lands. -->
+    <div class="skeletons" id="loading" aria-hidden="true">
+      <div class="skeleton-card"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-block"></span><span class="sk sk-line short"></span></div>
+      <div class="skeleton-card"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-block"></span><span class="sk sk-line short"></span></div>
+      <div class="skeleton-card"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-block"></span><span class="sk sk-line short"></span></div>
+      <div class="skeleton-card"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-block"></span><span class="sk sk-line short"></span></div>
+    </div>
+
+    <div class="results" id="results" tabindex="-1"></div>
+
+    <div class="empty-state" id="empty-state" hidden>
+      <svg class="empty-icon" aria-hidden="true"><use href="#i-compass"/></svg>
+      <p><strong id="empty-title"></strong></p>
+      <p id="empty-hint"></p>
+    </div>
+
+    <details class="issues" id="issues" hidden>
+      <summary id="issues-summary">Spreadsheet problems</summary>
+      <ul id="issues-list"></ul>
+      <p class="hint">These rows are in the spreadsheet but could not be read, so they are not shown above.</p>
+    </details>
+
   </div>
-
-  <div class="shortlist-bar" id="shortlist-bar" hidden>
-    <p class="shortlist-count" id="shortlist-count"></p>
-    <label class="chip">
-      <input type="checkbox" id="f-shortlist-only">
-      <span>Show only my shortlist</span>
-    </label>
-    <button type="button" id="export-csv" class="button">Download CSV</button>
-    <button type="button" id="print-shortlist" class="button">Print</button>
-    <button type="button" id="clear-shortlist" class="button button-quiet">Clear shortlist</button>
-  </div>
-
-  <p class="loading" id="loading">Loading programmes&hellip;</p>
-
-  <div class="results" id="results" tabindex="-1"></div>
-
-  <div class="empty-state" id="empty-state" hidden>
-    <p><strong id="empty-title"></strong></p>
-    <p id="empty-hint"></p>
-  </div>
-
-  <details class="issues" id="issues" hidden>
-    <summary id="issues-summary">Spreadsheet problems</summary>
-    <ul id="issues-list"></ul>
-    <p class="hint">These rows are in the spreadsheet but could not be read, so they are not shown above.</p>
-  </details>
 
 </main>
 
