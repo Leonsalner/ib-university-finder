@@ -25,6 +25,13 @@ export async function getHtml(url, tries = 2) {
   }
 }
 
+/** The same request, kept as bytes — Maynooth publishes its fees as a PDF. */
+export async function getBuffer(url) {
+  const res = await fetch(url, { headers: UA, redirect: 'follow' });
+  if (!res.ok) throw new Error(`${url} returned ${res.status}`);
+  return Buffer.from(await res.arrayBuffer());
+}
+
 // Tags stripped, entities unwrapped, whitespace collapsed. Every one of these
 // sites states its numbers in running text, so a text view is enough and no
 // HTML parser is needed.

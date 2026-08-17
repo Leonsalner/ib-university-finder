@@ -26,15 +26,17 @@ official page. The site says so, loudly, on a banner and on every card.
 1. **Sign off the rows that matter.** Pick the 15–20 programmes actually being
    applied to, open each official page, and replace `AI-DRAFT` with real
    initials. Do not attempt all 757.
-2. **Fees for UCD, UCC, DCU and Maynooth.** Still blank, so the tuition filter
-   ignores 331 of the 757 rows. UL (86 rows, per course) and Galway (54 rows,
-   one university-wide figure) are done. None of the other four publishes a fee
-   on the course page, so this means finding each fees page by hand.
-   DCU is the awkward one: its course pages print "Student Contribution €2,543.
-   EU Status Fee €5,922" without saying whether the second figure includes the
-   first, so it was left blank rather than guessed at. Galway's equivalent table
-   is explicit — €3,098 tuition + €2,500 contribution + €140 levy = €5,738
-   "Total EU Fee" — which is why Galway could be filled and DCU could not.
+2. **UCD's fees, and DCU's English requirement.** These are the last two holes,
+   and both are the university's fault rather than nobody having looked.
+
+   UCD's own "EU Undergraduate Fees 2026/27" page says *"Fees published for the
+   Colleges below…"* and then publishes nothing below — the only figure on it is
+   the €254 student centre levy. The 2025/26 page is the same, and rendering the
+   page in a browser shows no tables either. So all 140 UCD rows have no fee.
+   Someone will have to email UCD or find the figure in a prospectus.
+
+   DCU's English language requirements page 404s and nothing else on the site
+   states an IB equivalence, so its 71 rows show no English requirement.
 3. **Connect the Google Sheet.** Two tabs, published to the web as CSV, URLs
    pasted into `js/config.js`. Until then the site reads `data/*.csv` from the
    repo and nobody can maintain it without Git.
@@ -47,15 +49,20 @@ official page. The site says so, loudly, on a banner and on every card.
 - 20 programmes have no deadline (18 Leiden, plus VU Law in Society and Tilburg
   Psychology, where the university lists several dates without saying which is
   the application deadline).
-- 746 of 757 have no English requirement — the Dutch universities mostly do not
-  publish one per programme, and none of the six new Irish universities has had
-  its university-level default filled in yet.
+- 250 of 757 show no English requirement, counting the university default each
+  programme inherits. Almost all are Dutch; on the Irish side only DCU's 71 are
+  missing, for the reason in job 2.
+- 152 of 757 show no tuition figure, again after inheritance. 140 of those are
+  UCD; the other 12 are Dutch.
 - `student_life_url` is empty everywhere. Never invent these.
 - Subject areas are keyword-mapped from course titles across all seven Irish
   universities, and a few are rough.
-- The six new Irish universities have **no baseline requirement and no English
-  requirement** at university level — blank, meaning nobody has checked. Fees
-  are done for UL and Galway only; see job 2.
+- **`baseline_requirement` is blank for all six new Irish universities.** UCD
+  does state one — "24 or more total points and the award of the IB Diploma" —
+  but only on a page headed "for international (non-EU/non-EEA) students only",
+  and a Slovak applicant goes through the CAO as an EU applicant. Left blank
+  rather than borrowed from the wrong audience. The per-course `ib_points_min`
+  carries the number that actually matters anyway.
 - **368 of the 555 Irish rows have a blank `ib_subjects`.** Only UCD and
   Trinity publish subject requirements per course; the other five do not, so
   blank here means "not checked", not "nothing to meet". A further 7 Trinity
@@ -95,7 +102,16 @@ official page. The site says so, loudly, on a banner and on every card.
   inherits. Used where a university college charges more than the standard rate
   but the figure has not been confirmed.
 - **Non-EU tuition is not collected.** Everyone using this site is an EU
-  citizen. The columns still exist; nothing reads them.
+  citizen. The columns still exist; nothing reads them. The Irish importers do
+  fill `tuition_noneu` where a page happens to print it, because it costs
+  nothing to keep.
+- **The Irish fee recorded is the full EU fee, not the student contribution.**
+  Ireland's Free Fees Initiative needs three years' EU residency, which someone
+  arriving from Slovakia for the degree will not have. So they pay tuition plus
+  contribution plus levy — UCC's "Total Fees" column, Maynooth's "Total Fee",
+  DCU's "EU Status Fee", Galway's "Total EU Fee", UL's "EU fees per year" —
+  and not the €2,500-ish a resident pays. Recording the resident figure would
+  understate the cost by two to five thousand euro a year.
 - **Irish points are last year's demand-driven cutoffs**, not minimums, and the
   cards say so. Conversions never assume the HL Maths bonus. The one exception
   is UCD, which publishes an IB total it will accept, so UCD's numbers are real
@@ -131,6 +147,15 @@ official page. The site says so, loudly, on a banner and on every card.
   UL's index mixes degree pages with subject pages; only the code separates
   them. UCD and Maynooth answer `403` to a bare Node fetch, so every request
   carries a browser user-agent.
+- **And where each hides its fees**: UCC and Maynooth publish one schedule for
+  every course, keyed by CAO code — UCC as an HTML table, Maynooth as a PDF
+  (which is what `tools/lib/pdf.mjs` reads). DCU and UL print the fee on each
+  course page. Galway prints one figure for all courses. UCD publishes nothing
+  readable. Maynooth's PDF link carries a version and date in its filename and
+  is discovered from the fees page, never hardcoded — it was already at V.2
+  while search engines still pointed at V.1. Two rows in that PDF have parts
+  that do not sum to their stated total, and those are skipped rather than
+  recorded wrong.
 - **Denmark** was investigated and set aside: the University of Copenhagen
   teaches every bachelor in Danish, and the English-taught undergraduate
   offering is thin and split across seven institutions.
@@ -153,7 +178,8 @@ node tools/import-ucd.mjs       # writes tools/ucd-rows.csv, does not merge
 ```
 
 `tools/lib/cao-points.mjs` parses the CAO's Level 8 points table and is shared
-by all seven. `tools/lib/irish-import.mjs` is the whole flow for the five
+by all seven. `tools/lib/pdf.mjs` is the PDF text extractor that used to be
+`pdftext.mjs`; the command-line tool still works and now wraps it. `tools/lib/irish-import.mjs` is the whole flow for the five
 cutoff-only universities, so `import-ucc.mjs` and its siblings are just a list
 URL, a link pattern and a CAO-code pattern. Two stand alone: `import-ucd.mjs`,
 because UCD publishes an IB minimum outright, and `import-tcd.mjs`, because

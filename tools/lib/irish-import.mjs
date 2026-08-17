@@ -28,10 +28,15 @@ import { fetchCaoPoints, caoNote } from './cao-points.mjs';
  *        DCU prints "Student Contribution €2,543. EU Status Fee €5,922" without
  *        saying whether the second includes the first, and a wrong fee is worse
  *        than a blank one, which the site labels "Not published".
+ * @param {() => Promise<Map<string, {eu?: number, noneu?: number}>>} [cfg.feesByCode]
+ *        the same thing for universities that publish one fee schedule for
+ *        every course, keyed by CAO code, instead of putting it on each page.
  * @param {string} cfg.out            file to write, relative to tools/
  */
 export async function importUniversity(cfg) {
   const cao = await fetchCaoPoints();
+  const feeTable = cfg.feesByCode ? await cfg.feesByCode() : null;
+  if (feeTable) console.log(`${cfg.universityId}: ${feeTable.size} courses in the published fee schedule`);
   const listHtml = await getHtml(cfg.listUrl);
 
   const links = [...listHtml.matchAll(cfg.linkRe)]
@@ -73,7 +78,7 @@ export async function importUniversity(cfg) {
     // to fit a fixed-width column ("Arts - Music - 3 years or 4 years  (BMus
     // or Chinese/European/Internation").
     const title = link.title.replace(/\s*\([A-Z]{2}\d{3}\)\s*$/, '').trim();
-    const fees = cfg.fees ? cfg.fees(text) : {};
+    const fees = (cfg.fees ? cfg.fees(text) : feeTable?.get(code)) ?? {};
     if (fees.eu) withFees++;
     const needsMaths = /engineer|mathemat|physic|comput|actuarial|financ|econom/i.test(title);
 
@@ -147,7 +152,7 @@ export async function importUniversity(cfg) {
   const csv = rows.map((r) => toRow({ ...r.fields, deadline_notes: r.notes.filter(Boolean).join(' ') }));
   writeFileSync(new URL(`../${cfg.out}`, import.meta.url), `${csv.join('\n')}\n`);
   console.log(`  ${shared} rows share a CAO code with another programme and say so`);
-  if (cfg.fees) console.log(`  ${withFees} rows carry a published EU fee`);
+  if (cfg.fees || cfg.feesByCode) console.log(`  ${withFees} rows carry a published EU fee`);
   console.log(
     `${cfg.universityId}: wrote ${rows.length} rows to tools/${cfg.out}\n`
     + `  skipped ${skipped.noCode} with no CAO code, ${skipped.notInCao} not in the CAO Level 8 table\n`
