@@ -47,13 +47,13 @@ official page. The site says so, loudly, on a banner and on every card.
 
 ## Known gaps
 
-- 20 programmes have no deadline (18 Leiden, plus VU Law in Society and Tilburg
-  Psychology, where the university lists several dates without saying which is
-  the application deadline).
-- 250 of 757 show no English requirement, counting the university default each
+- 5 programmes have no deadline: VU Law in Society, Leiden Archaeology, Leiden
+  University College, and the two Utrecht colleges. Was 20 — fourteen Leiden
+  deadlines and Tilburg Psychology were recovered on 2026-08-21.
+- 249 of 757 show no English requirement, counting the university default each
   programme inherits. Almost all are Dutch; on the Irish side only DCU's 71 are
   missing, for the reason in job 2.
-- 150 of 757 show no tuition figure, after inheritance. 140 of those are UCD.
+- 147 of 757 show no tuition figure, after inheritance. 140 of those are UCD.
   Galway no longer has a university default at all — its fees are per course,
   because only 1 of its 54 courses charged the figure that used to be the
   default. See the GLM re-check section.
@@ -303,24 +303,59 @@ loads fine and simply publishes nothing where it promises tables.
 - **Twente is worse than reported, not better.** It said 13 of 15 programmes
   carry 1 May; all 15 do.
 
-### Confirmed as a real gap, but the fix is not verifiable from here
+### Chased down afterwards, with a browser
 
-- **UCD Computer Science** — the report was right that the subject requirement
-  was missing, and right that it is "Mathematics SL 6 / HL 4". That turned out
-  to be *our* bug rather than a gap: a 160-character cap in `import-ucd.mjs`,
-  the twin of Trinity's 110. Removing it recovered the requirement on all three
-  Computer Science rows. Re-running the importer also showed UCD's catalogue had
-  moved slightly (163 undergraduate courses, up from 161), and the two courses
-  both titled "Mathematics" swapped which of them holds the `-2` suffix — worth
-  knowing if a saved shortlist ever points at the wrong one of that pair.
-- **TU/e non-EU tuition, Twente's 1 July EEA deadline, UvA PPLE's deadline,
-  Wageningen Tourism's maths requirement, EUR University College's maths
-  requirement, Leiden Psychology's deadline, the Utrecht and Groningen college
-  fees, the UL fee anomalies, and the TCD/UCC English A grades** all remain as
-  the report left them. The pages either render their content with JavaScript,
-  sit behind bot protection (Leiden blocks outright), or were not found at the
-  URL tried. None of these was changed on the strength of the report alone.
-- **Non-EU tuition defaults** are still blank for Groningen, UvA, VU, Twente and
-  Tilburg. The report is right that each charges an institutional fee, and right
-  that Groningen has two tiers rather than one. Nothing reads these columns, so
-  it is not urgent.
+The remaining items were left open because the pages render their content with
+JavaScript or block a bare fetch. Driving a real browser — and, for Leiden,
+fetching from inside the page's own origin so its bot protection saw a normal
+session — settled almost all of them.
+
+- **Twente's deadline is 1 July, not 1 May.** Its table is by nationality, not
+  by programme: 1 July for EEA nationals in the September intake, 1 May for
+  non-EEA. Thirteen rows moved. Two exceptions are real: Technical Computer
+  Science closes in Studielink on 1 May because matching is mandatory, and
+  Psychology is 15 January. Advanced Technology and Mechanical Engineering are
+  listed among the programmes with deviating deadlines but publish no separate
+  EEA date, so they carry 1 July with that flagged in the note.
+- **Fourteen Leiden deadlines recovered.** Leiden publishes one table per
+  programme: 1 May for direct admission and for internationals who need no visa,
+  1 April only for non-EU visa applicants. Psychology is 15 January, a numerus
+  fixus. Archaeology's deadline page 404s and University College's did not
+  render a table, so those two stay blank and say why.
+- **UvA PPLE closes 1 February**, not 15 January — applications open 1 October.
+- **Wageningen Tourism does require Mathematics.** The row said `none`. WUR's
+  table of required subjects by programme lists it, and it is the same table
+  every other Wageningen row here came from.
+- **Erasmus University College required far more than `none`**: 30 points
+  excluding TOK, EE and CAS; maths at AA HL 4 / AA SL 5 / AI HL 5, with AI SL
+  accepted only alongside an OMPT-A test; English at A SL 5 / A HL 4 / B HL 5;
+  and achieved grades only, no predicted grades.
+- **The two Utrecht colleges were the other way round.** The report gave €4,845
+  to University College Utrecht and €5,591 to Roosevelt. It is the reverse:
+  Utrecht €5,591 (2026/27), Roosevelt €4,845 (still a 2025/26 figure). Taking
+  the report at its word would have put the wrong fee on both.
+- **University College Groningen** is €5,343 EU / €17,200 non-EU, as reported.
+
+### One report claim that was itself wrong
+
+**TU/e's non-EU fee should stay at €19,200.** The report called 19,200 an error
+and asked for €18,600. TU/e's page publishes both: €18,600 for 2026-2027 and
+**€19,200 for 2027-2028**. This dataset is for September 2027 entry, which is
+the 2027-2028 academic year, so 19,200 is the right number and "fixing" it would
+have introduced the error.
+
+Worth knowing more generally: the Dutch statutory fee of €2,694 on every Dutch
+row is the 2026/27 figure, because 2027/28 is still "t.b.a." on TU/e's page. The
+EU numbers are therefore a year behind the non-EU one, and will rise.
+
+### Still open
+
+- **UCD's fees**, 140 rows, for the reason in job 2 — the page publishes nothing.
+- **VU Law in Society's deadline.** The programme is selective and its admissions
+  page carries no date at all.
+- **Leiden Archaeology and Leiden University College deadlines**, above.
+- **UL's fee oddities** — history €17,492 and music-and-dance €17,495 against
+  €17,500 on their siblings, and Japanese blank. These are what the pages say;
+  they look like UL's own rounding rather than a scraping fault.
+- **TCD and UCC English A grades**, and the **non-EU tuition defaults** for
+  Groningen, UvA, VU, Twente and Tilburg. Nothing reads the non-EU columns.
