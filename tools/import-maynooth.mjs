@@ -34,7 +34,9 @@ async function feesByCode() {
     // is unknowable from here, so the row is left without a fee rather than
     // recorded wrong.
     if (n(tuition) + n(contrib) + n(levy) !== n(total)) { inconsistent++; continue; }
-    map.set(code, { eu: n(total) });
+    // Contribution + levy: what a Free Fees student pays. The State covers the
+    // tuition column, and the total is for EU applicants who do not qualify.
+    map.set(code, { eu: n(contrib) + n(levy) });
   }
 
   if (inconsistent) console.log(`  maynooth: ${inconsistent} fee rows skipped — the PDF's own parts do not sum to its total`);

@@ -26,18 +26,16 @@ official page. The site says so, loudly, on a banner and on every card.
 1. **Sign off the rows that matter.** Pick the 15–20 programmes actually being
    applied to, open each official page, and replace `AI-DRAFT` with real
    initials. Do not attempt all 757.
-2. **UCD's fees, and DCU's English requirement.** These are the last two holes,
-   and both are the university's fault rather than nobody having looked.
+2. **DCU's English requirement.** Its requirements page is live but publishes no
+   IB equivalence at all, so its 71 rows show no English requirement.
 
-   UCD's own "EU Undergraduate Fees 2026/27" page says *"Fees published for the
-   Colleges below…"* and then publishes nothing below — the only figure on it is
-   the €254 student centre levy. The 2025/26 page is the same, and rendering the
-   page in a browser shows no tables either. So all 140 UCD rows have no fee.
-   Someone will have to email UCD or find the figure in a prospectus.
+   UCD's fees are no longer a hole, though its page is still broken: the "EU
+   Undergraduate Fees 2026/27" page says *"Fees published for the Colleges
+   below…"* and publishes nothing below, and the non-EU page is empty too. It
+   does not matter, because the figure this cohort pays is the contribution plus
+   levy, which UCD does publish. See the Free Fees entry below.
 
-   DCU's English language requirements page is live (the earlier note here said
-   it 404s — that was a guessed URL, corrected 2026-08-21), but it publishes no
-   IB equivalence at all, so its 71 rows still show no English requirement.
+
 3. **Connect the Google Sheet.** Two tabs, published to the web as CSV, URLs
    pasted into `js/config.js`. Until then the site reads `data/*.csv` from the
    repo and nobody can maintain it without Git.
@@ -53,7 +51,10 @@ official page. The site says so, loudly, on a banner and on every card.
 - 249 of 757 show no English requirement, counting the university default each
   programme inherits. Almost all are Dutch; on the Irish side only DCU's 71 are
   missing, for the reason in job 2.
-- 147 of 757 show no tuition figure, after inheritance. 140 of those are UCD.
+- 3 of 757 show no tuition figure, after inheritance: Galway Pharmacy, whose
+  page carries no fee table, and two Dutch rows. Was 147 — the Irish fees were
+  re-based on the Free Fees Initiative on 2026-08-21, which both corrected them
+  and filled UCD's 140.
   Galway no longer has a university default at all — its fees are per course,
   because only 1 of its 54 courses charged the figure that used to be the
   default. See the GLM re-check section.
@@ -162,13 +163,41 @@ them by accident:
   citizen. The columns still exist; nothing reads them. The Irish importers do
   fill `tuition_noneu` where a page happens to print it, because it costs
   nothing to keep.
-- **The Irish fee recorded is the full EU fee, not the student contribution.**
-  Ireland's Free Fees Initiative needs three years' EU residency, which someone
-  arriving from Slovakia for the degree will not have. So they pay tuition plus
-  contribution plus levy — UCC's "Total Fees" column, Maynooth's "Total Fee",
-  DCU's "EU Status Fee", Galway's "Total EU Fee", UL's "EU fees per year" —
-  and not the €2,500-ish a resident pays. Recording the resident figure would
-  understate the cost by two to five thousand euro a year.
+- **The Irish fee recorded is the Free Fees figure: student contribution plus
+  that university's levy.** This reverses what this file said until 2026-08-21,
+  and the reversal matters more than most entries here.
+
+  The earlier reasoning was that Free Fees needs three years' residency *in
+  Ireland*. It does not. Every university states the same test — UCD: "ordinarily
+  resident in the EU/EEA/UK/Swiss Confederation for a minimum of 3 of the 5 years
+  prior to commencing", with place of residence deemed to be **place of
+  education**; Trinity words it identically. A Slovak student who has been at
+  school in Slovakia meets it. Galway says so plainly on every course page:
+  "Most EU students applying through the CAO will be eligible for the Free Fees
+  Initiative."
+
+  So the State pays the tuition column, and the bill is:
+
+  | | 2026/27 |
+  |---|---|
+  | Trinity | €2,814 (€2,500 + €314 SLC) |
+  | UCD | €2,754 (€2,500 + €254 levy) |
+  | UCC | €2,710 (€2,500 + €210 capitation) |
+  | Maynooth | €2,650 (€2,500 + €150 levy) |
+  | Galway | €2,640, and €2,840 on five courses whose levy is €340 |
+  | UL | €2,604 (€2,500 + €104 levy) |
+  | DCU | €2,543 |
+
+  The larger "EU fee" each university also prints — Galway's "Total EU Fee",
+  DCU's "EU Status Fee", UL's "EU fees per year" — is the rate for EU applicants
+  who do *not* qualify. Recording those overstated the cost by three to five
+  thousand euro a year and would have steered someone away from Ireland on a
+  false comparison. **Do not take the larger number just because the page labels
+  it "EU".**
+
+  A useful side effect: this closed the UCD gap. UCD never publishes the full EU
+  fee, but it does publish the contribution and the levy, which is all this
+  cohort actually pays.
 - **Irish points are last year's demand-driven cutoffs**, not minimums, and the
   cards say so. Conversions never assume the HL Maths bonus. The one exception
   is UCD, which publishes an IB total it will accept, so UCD's numbers are real

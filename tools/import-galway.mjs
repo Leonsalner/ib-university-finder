@@ -24,10 +24,11 @@ await importUniversity({
   // €8,208 — so there is no university default any more. There used to be one,
   // set to €5,738, and it was right for exactly one of the 54 courses.
   //
-  // "Total EU Fee" is the column to take: tuition + contribution + levy, which
-  // is what an applicant without three years' EU residency pays. "Total Fee" is
-  // the smaller number a Free Fees student pays and would understate the cost.
-  // The row is skipped unless those three parts actually sum to it.
+  // Take contribution + levy, which Galway also prints as its "Total Fee"
+  // column. That is what a Free Fees student pays; the larger "Total EU Fee"
+  // is for EU applicants who do not qualify, and Galway's own page says most
+  // CAO applicants do. The levy is 340 rather than 140 on five courses, which
+  // is why this stays per course instead of becoming a university default.
   fees: (text) => {
     const m = text.match(
       /Total EU Fee Total Non-EU Fee\s+\S+\s+€\s?([\d,]+)\s+€\s?([\d,]+)\s+€\s?([\d,]+)\s+€\s?([\d,]+)\s+€\s?([\d,]+)\s+€\s?([\d,]+)\s+€\s?([\d,]+)/,
@@ -36,7 +37,7 @@ await importUniversity({
     const n = (s) => Number(s.replace(/,/g, ''));
     const [tuition, contribution, , levy, , totalEu, totalNonEu] = m.slice(1).map(n);
     if (tuition + contribution + levy !== totalEu) return {};
-    return { eu: totalEu, noneu: totalNonEu };
+    return { eu: contribution + levy, noneu: totalNonEu };
   },
   out: 'galway-rows.csv',
 });

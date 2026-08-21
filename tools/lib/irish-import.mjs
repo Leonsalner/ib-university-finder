@@ -24,10 +24,12 @@ import { fetchCaoPoints, caoNote } from './cao-points.mjs';
  * @param {(title: string) => boolean} [cfg.skip]  extra per-university filter
  * @param {(page: string) => {eu?: number, noneu?: number}} [cfg.fees]
  *        per-course fees, only where the university publishes an unambiguous
- *        figure on the course page. Left unset everywhere it is ambiguous:
- *        DCU prints "Student Contribution €2,543. EU Status Fee €5,922" without
- *        saying whether the second includes the first, and a wrong fee is worse
- *        than a blank one, which the site labels "Not published".
+ *        figure on the course page. Every Irish fee in this dataset is what a
+ *        Free Fees student pays — student contribution plus that university's
+ *        levy — because the State pays the tuition of EU/EEA applicants
+ *        resident and educated in the EU/EEA for three of the previous five
+ *        years, which this cohort is. Pages that print a larger "EU fee" are
+ *        quoting the rate for EU applicants who do not qualify; do not take it.
  * @param {() => Promise<Map<string, {eu?: number, noneu?: number}>>} [cfg.feesByCode]
  *        the same thing for universities that publish one fee schedule for
  *        every course, keyed by CAO code, instead of putting it on each page.
