@@ -35,8 +35,9 @@ official page. The site says so, loudly, on a banner and on every card.
    page in a browser shows no tables either. So all 140 UCD rows have no fee.
    Someone will have to email UCD or find the figure in a prospectus.
 
-   DCU's English language requirements page 404s and nothing else on the site
-   states an IB equivalence, so its 71 rows show no English requirement.
+   DCU's English language requirements page is live (the earlier note here said
+   it 404s — that was a guessed URL, corrected 2026-08-21), but it publishes no
+   IB equivalence at all, so its 71 rows still show no English requirement.
 3. **Connect the Google Sheet.** Two tabs, published to the web as CSV, URLs
    pasted into `js/config.js`. Until then the site reads `data/*.csv` from the
    repo and nobody can maintain it without Git.
@@ -52,8 +53,11 @@ official page. The site says so, loudly, on a banner and on every card.
 - 250 of 757 show no English requirement, counting the university default each
   programme inherits. Almost all are Dutch; on the Irish side only DCU's 71 are
   missing, for the reason in job 2.
-- 152 of 757 show no tuition figure, again after inheritance. 140 of those are
-  UCD; the other 12 are Dutch.
+- 150 of 757 show no tuition figure, after inheritance. 140 of those are UCD.
+  Galway no longer has a university default at all — its fees are per course,
+  because only 1 of its 54 courses charged the figure that used to be the
+  default. See the GLM re-check section.
+- 19 of 757 have no deadline.
 - `student_life_url` is empty everywhere. Never invent these.
 - Subject areas are keyword-mapped from course titles across all seven Irish
   universities, and a few are rough.
@@ -128,6 +132,16 @@ them by accident:
   branch of a parser must never be the reassuring answer. Every importer here
   now writes blank — "not checked" — when it cannot read something, and only
   writes `none` on positive evidence that the university means none.
+
+- **The same capped-regex bug, a second time (fixed 2026-08-21).**
+  `import-ucd.mjs` capped its subject-requirement capture at 160 characters.
+  UCD's Computer Science page states its maths requirement further from the next
+  heading than that, so the match failed and the row was written with **no
+  subject requirement at all** — the identical failure to Trinity's 110, found
+  by a second model re-checking the data rather than by us. The cap is gone.
+
+  Two importers made the same mistake independently. If a third capture needs a
+  bound, bound it with a terminator, never a character count.
 
 - **Stream courses inherit from a parent page.** Trinity's "Chemistry: Chemical
   Sciences" does not repeat the requirement; it links to the parent course that
@@ -230,3 +244,83 @@ Trinity states a subject requirement per course and hides some of them on
 parent pages.
 
 Never open the CSVs in Excel — see MAINTENANCE.md.
+
+## The GLM re-check (2026-08-20), verified 2026-08-21
+
+A second model re-checked all 757 rows against official pages and left a report
+here. It was worth having — most of it holds up. It was **not** taken on trust:
+every claim it made about our own CSVs was checked against the CSVs, and the
+claims worth acting on were checked against the university pages. This section
+is what survived that, so nobody re-litigates it.
+
+### Its one systematic error: the "unverifiable 403" tier
+
+It reported UCD (140 rows), Maynooth (64) and Tilburg (9) as unreachable —
+"fees pages return 403 to all automated access" — and set them aside. They are
+not unreachable. They answer 403 to a bare fetch and **200 to a fetch carrying a
+browser user-agent**, which is the trap already documented two sections up under
+"Where each Irish university hides its data". Anything built on that tier should
+be re-checked rather than believed.
+
+The UCD fee gap is real anyway, but for the other reason in job 2: the page
+loads fine and simply publishes nothing where it promises tables.
+
+### Confirmed against the official pages, and fixed
+
+- **Galway fees vary by course.** The single €5,738 / €19,890 default was right
+  for exactly **1 of 54** courses. Every Galway course page carries its own fee
+  table, and the parts sum to the stated total on all 53 that have one. Science
+  €7,408, Law €6,733, Nursing €7,246, Allied Health €8,208, Arts/Commerce
+  €5,738, and more. Per-course figures are now on the rows and the university
+  default is blank, because no single figure is correct. (The report said "~26
+  rows"; it is all of them.)
+- **Groningen recorded the wrong intake's deadline.** `rug-dss`, `rug-grl` and
+  `rug-ucg` carried the February-intake date. Groningen publishes a deadline per
+  intake — 1 January for February, **1 May for September** — and September is
+  the intake an IB student finishing school in May applies for. Fixed, with the
+  distinction written into the note. `rug-psy` was already right at 15 January,
+  because a numerus fixus programme has a single date.
+- **Utrecht PPE charges €5,388**, not the €2,694 statutory fee it was
+  inheriting. Stated outright on the programme page. Fixed.
+- **Tilburg Psychology and Twente Psychology are numerus fixus** — 700 and 250
+  places, both stated on their pages — so the statutory 15 January selection
+  deadline applies. Tilburg's was blank and Twente's said 1 May. Both fixed.
+  Tilburg's page also requires mathematics without giving IB levels, which is
+  now recorded as such.
+- **VU PPE**: the page gives 15 June for EU students, not the 15 January
+  recorded. Changed, but flagged in the note — VU described it as an *extension*
+  for the 2026 intake, so 2027 needs confirming.
+- **DCU physics fees.** Three rows were blank; the other programmes under the
+  same CAO code all publish €6,679 / €16,900, so the rows now carry it. (The
+  report said six rows; two of the six already had fees.)
+- **`vu-cis` really was a dead link.** The `/admissions` page 404s; the
+  programme page without it resolves. Fixed.
+
+### Wrong, and left alone
+
+- **`uva-hgp` and `uva-sociology` are not broken.** Both return 200. Only
+  `vu-cis` of the three was real.
+- **Twente is worse than reported, not better.** It said 13 of 15 programmes
+  carry 1 May; all 15 do.
+
+### Confirmed as a real gap, but the fix is not verifiable from here
+
+- **UCD Computer Science** — the report was right that the subject requirement
+  was missing, and right that it is "Mathematics SL 6 / HL 4". That turned out
+  to be *our* bug rather than a gap: a 160-character cap in `import-ucd.mjs`,
+  the twin of Trinity's 110. Removing it recovered the requirement on all three
+  Computer Science rows. Re-running the importer also showed UCD's catalogue had
+  moved slightly (163 undergraduate courses, up from 161), and the two courses
+  both titled "Mathematics" swapped which of them holds the `-2` suffix — worth
+  knowing if a saved shortlist ever points at the wrong one of that pair.
+- **TU/e non-EU tuition, Twente's 1 July EEA deadline, UvA PPLE's deadline,
+  Wageningen Tourism's maths requirement, EUR University College's maths
+  requirement, Leiden Psychology's deadline, the Utrecht and Groningen college
+  fees, the UL fee anomalies, and the TCD/UCC English A grades** all remain as
+  the report left them. The pages either render their content with JavaScript,
+  sit behind bot protection (Leiden blocks outright), or were not found at the
+  URL tried. None of these was changed on the strength of the report alone.
+- **Non-EU tuition defaults** are still blank for Groningen, UvA, VU, Twente and
+  Tilburg. The report is right that each charges an institutional fee, and right
+  that Groningen has two tiers rather than one. Nothing reads these columns, so
+  it is not urgent.

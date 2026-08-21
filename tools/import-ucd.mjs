@@ -71,8 +71,15 @@ for (const c of courses) {
   // several may be listed, and only the IB half of each is any use here. The
   // page repeats the whole block once for EU and once for non-EU applicants,
   // so the list is deduped before it is joined.
+  //
+  // No length cap on the body. There was one, of 160 characters, and it did
+  // exactly what the 110-character cap did to Trinity: Computer Science states
+  // its maths requirement more than 160 characters before the next heading, so
+  // the match failed outright and the row was written with no subject
+  // requirement at all. Same lesson, second importer — a bounded capture whose
+  // failure mode is silence will eventually go silent on real data.
   const subjects = [...new Set([...txt.matchAll(
-    /Subject Requirements \(([^)]{2,40})\)([^]{0,160}?)(?=Subject Requirements \(|CAO Points|Leaving Cert|Country Specific|Other School|$)/g,
+    /Subject Requirements \(([^)]{2,40})\)([^]*?)(?=Subject Requirements \(|CAO Points|Leaving Cert|Country Specific|Other School|$)/g,
   )]
     .map(([, subject, body]) => {
       const grade = (body.match(/\bIB\s+((?:SL|HL)\s*\d(?:\s*\/\s*(?:SL|HL)\s*\d)?)/) || [])[1];
