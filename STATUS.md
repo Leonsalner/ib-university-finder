@@ -107,9 +107,17 @@ large tinted rounded panels, rose brand accent, blue links, arrow motif).
   for interactive text. Amber and red stay semantic and never decorate.
 - **Motion** is transform and opacity only, first ten cards only, and stops
   entirely under `prefers-reduced-motion`.
+- **Light only, no dark palette** (dropped 2026-10-24). `color-scheme: light` is
+  declared in `:root`, and it has to be: without it a browser on a dark OS
+  renders form controls, scrollbars and the canvas dark underneath a light page.
+  `tools/check-contrast.mjs` throws if a `prefers-color-scheme: dark` block
+  reappears, so nobody can add one back and leave its pairs unchecked.
+- **Desktop is the design target**, but the responsive CSS stays. It is written,
+  verified at 375/768/1280 and costs nothing to keep, and the ~30 classmates
+  browsing will not all be at a desk. "Desktop only" means no further mobile
+  polish, not ripping out working breakpoints.
 - **Contrast is measured, not eyeballed.** `node tools/check-contrast.mjs` —
-  58 pairs, both themes, every foreground against the background it is genuinely
-  painted on.
+  29 pairs, every foreground against the background it is genuinely painted on.
 
 **What was deliberately not taken from the reference.** It is a portfolio with
 six elements on a screen and enormous type. This is a data tool where one card
@@ -277,11 +285,11 @@ node tools/make-snapshot.mjs    # rebuild data/fallback.json after data changes
 
 Run `check-contrast.mjs` after **any** change to a colour token. It reads the
 token blocks out of `css/styles.css` — so it cannot drift from the real palette
-— and checks each foreground against the background it is genuinely painted on,
-in both themes. It caught `--save` at 3.63:1 on white the first time it ran,
-which a careful manual sweep had missed because that element was only ever
-measured in dark mode. If it fails, darken the foreground or lighten its
-background; do not lower the minimum.
+— and checks each foreground against the background it is genuinely painted on.
+It caught `--save` at 3.63:1 on white the first time it ran, which a careful
+manual sweep had missed because that element had only ever been measured against
+the dark palette that no longer exists. If it fails, darken the foreground or
+lighten its background; do not lower the minimum.
 
 The importers are one-off and already run; their output is merged into
 `data/programmes.csv`. Re-run one only to refresh a university:

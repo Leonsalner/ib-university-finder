@@ -11,7 +11,10 @@
      you scan two cards side by side. */
 
 :root {
-  color-scheme: light dark;
+  /* Light only, declared so the browser does not render form controls,
+     scrollbars and the canvas dark when the OS is — which it does by
+     default, and which would fight a page that has no dark palette. */
+  color-scheme: light;
 
   --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
@@ -83,46 +86,6 @@
   --dur: 220ms;
 
   --shell-max: 78rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page: #121110;
-    --surface: #1c1a18;
-    --surface-2: #242220;
-    --ink: #f1ede7;
-    --ink-soft: #c0b9b0;
-    --ink-faint: #a69e94;
-    --line: #2e2b27;
-    --line-soft: #232120;
-
-    --accent: #ff93b4;
-    --accent-strong: #ffb3c9;
-    --accent-soft: #2e1a22;
-    --accent-line: #4a2a35;
-
-    --link: #8fb6f2;
-
-    --tint-nl: #18222f;
-    --tint-nl-ink: #a9c7f1;
-    --tint-ie: #16261e;
-    --tint-ie-ink: #97cdaf;
-
-    --inset: #141312;
-
-    --warn: #e8bd6b;
-    --warn-soft: #2a2416;
-    --warn-line: #4a3f24;
-    --danger: #f0a0a0;
-    --danger-soft: #2d1a1a;
-    --danger-line: #57302f;
-    --save: #e8bd6b;
-    --save-soft: #2a2416;
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-    --shadow-md: 0 18px 40px -20px rgba(0, 0, 0, 0.75);
-    --shadow-rail: none;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -777,9 +740,6 @@ svg:not(.sprite) {
     transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
     animation: shimmer 1.4s infinite;
-  }
-  @media (prefers-color-scheme: dark) {
-    .sk::after { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent); }
   }
 }
 @keyframes shimmer { to { transform: translateX(100%); } }

@@ -1,5 +1,5 @@
 // Checks every text colour in css/styles.css against the background it is
-// actually painted on, in both light and dark.
+// actually painted on.
 //
 //   node tools/check-contrast.mjs
 //
@@ -7,7 +7,7 @@
 // colours below WCAG AA, one of them at 2.63:1, and none of it was visible by
 // eye — the palette looked fine. A redesign that swaps the token values is
 // exactly the change that reintroduces that, so it gets a check rather than a
-// careful look.
+// careful look. It has since caught --save at 3.63:1 on white, on its first run.
 //
 // Needs no libraries. It reads the token blocks straight out of the stylesheet,
 // so it cannot drift from the real values the way a second copy of the palette
@@ -104,9 +104,19 @@ function rootBlock(text, from = 0) {
 
 const light = tokensFrom(rootBlock(css) ?? '');
 
-const darkAt = css.indexOf('@media (prefers-color-scheme: dark)');
-if (darkAt === -1) throw new Error('No dark-mode block found in css/styles.css.');
-const dark = { ...light, ...tokensFrom(rootBlock(css, darkAt) ?? '') };
+// One palette. The dark one was dropped on 2026-10-24 — the site is light only,
+// and `color-scheme: light` in the stylesheet stops the browser dark-rendering
+// form controls and scrollbars underneath it. If a dark palette ever comes
+// back, add it to THEMES so its pairs get checked too; this guard makes sure
+// nobody can reintroduce one and quietly leave it unchecked.
+if (css.includes('prefers-color-scheme: dark')) {
+  throw new Error(
+    'css/styles.css has a dark-mode block again, but this checker only tests the '
+    + 'light palette. Add it to THEMES so its pairs are checked as well.',
+  );
+}
+
+const THEMES = [['light', light]];
 
 // ------------------------------------------------------------------- contrast
 
@@ -141,7 +151,7 @@ function ratio(fg, bg) {
 let failures = 0;
 let missing = 0;
 
-for (const [themeName, tokens] of [['light', light], ['dark', dark]]) {
+for (const [themeName, tokens] of THEMES) {
   console.log(`\n${themeName}`);
 
   for (const [fgName, bgName, where, min = 4.5] of PAIRS) {
@@ -176,6 +186,6 @@ console.log(
   problems
     ? `\n${failures} below the minimum, ${missing} unresolvable. `
       + 'Darken the foreground token or lighten its background — do not lower the minimum.'
-    : `\nAll ${PAIRS.length * 2} colour pairs pass.`,
+    : `\nAll ${PAIRS.length * THEMES.length} colour pairs pass.`,
 );
 process.exit(problems ? 1 : 0);
