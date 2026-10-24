@@ -490,9 +490,11 @@ svg:not(.sprite) {
   border: 0;
   border-radius: var(--r-xl);
   padding: 1.4rem 1.4rem 1.2rem;
-  display: grid;
+  /* A column, so the footer can be pushed to the bottom when the row's taller
+     card stretches this one. */
+  display: flex;
+  flex-direction: column;
   gap: 0.9rem;
-  align-content: start;
   transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
 
   /* All 700-odd cards stay in the DOM — Ctrl+F still finds them — but the
@@ -727,6 +729,7 @@ svg:not(.sprite) {
 }
 
 .card-foot {
+  margin-top: auto;
   border-top: 1px solid var(--line-soft);
   padding-top: 0.75rem;
   display: flex;
@@ -832,7 +835,9 @@ svg:not(.sprite) {
   /* minmax(0, 1fr), never plain 1fr: a bare 1fr refuses to shrink below its
      content's min-width, and one long unbroken requirement string then pushes
      the whole grid wider than the page. */
-  .results, .skeletons { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  /* Stretch, not start: the two cards in a row take the height of the taller
+     one, so neighbours line up instead of ending at different heights. */
+  .results, .skeletons { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
 }
 
 /* On a touch screen the controls grow to a 44px target. Hover styling is
