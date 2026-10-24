@@ -11,8 +11,10 @@ import {
 
 const dom = {
   banner: document.getElementById('source-banner'),
-  panel: document.getElementById('filter-panel'),
-  filtersCount: document.getElementById('filters-count'),
+  dropdowns: [...document.querySelectorAll('.dropdown')],
+  subjectsCount: document.getElementById('dd-subjects-count'),
+  countriesCount: document.getElementById('dd-countries-count'),
+  languagesCount: document.getElementById('dd-languages-count'),
   search: document.getElementById('f-search'),
   points: document.getElementById('f-points'),
   tuition: document.getElementById('f-tuition'),
@@ -50,11 +52,7 @@ let currentlyShown = 0;
 start();
 
 async function start() {
-  // Open only where the panel is a sidebar beside the results (the 1080px
-  // breakpoint in styles.css). Below that it is a full-width drawer, and
-  // opening it pushes the first card off the bottom of the screen — measured at
-  // 1148px down on a 768px-wide tablet.
-  dom.panel.open = window.innerWidth >= 1080;
+  wireDropdowns();
   dom.results.setAttribute('aria-busy', 'true');
 
   try {
@@ -218,7 +216,11 @@ function renderCounts(shown) {
     ? `${shown} ${plural(shown)}`
     : `${shown} of ${allRows.length} ${plural(allRows.length)}${scope}`;
 
-  dom.filtersCount.textContent = active === 0 ? '' : `${active} active`;
+  // Each pick-list button shows how many of its values are ticked, so a closed
+  // drop-down still tells you it is narrowing the results.
+  dom.subjectsCount.textContent = state.subjectAreas.size || '';
+  dom.countriesCount.textContent = state.countries.size || '';
+  dom.languagesCount.textContent = state.languages.size || '';
   dom.clear.disabled = active === 0;
 
   const saved = shortlist.size;
@@ -243,6 +245,28 @@ function renderEmptyState(shown) {
     dom.emptyTitle.textContent = 'No programmes match these filters.';
     dom.emptyHint.textContent = 'Try raising the tuition limit, or removing a country.';
   }
+}
+
+// The pick-lists are native <details>, so they open and close from the keyboard
+// with no help. This adds what <details> does not do on its own: only one open
+// at a time, and closing on a click outside or on Escape.
+function wireDropdowns() {
+  const closeAll = (except) => {
+    for (const d of dom.dropdowns) if (d !== except) d.open = false;
+  };
+  for (const d of dom.dropdowns) {
+    d.addEventListener('toggle', () => { if (d.open) closeAll(d); });
+  }
+  document.addEventListener('click', (event) => {
+    if (!dom.dropdowns.some((d) => d.contains(event.target))) closeAll();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    const open = dom.dropdowns.find((d) => d.open);
+    if (!open) return;
+    open.open = false;
+    open.querySelector('summary').focus();
+  });
 }
 
 function plural(n) {

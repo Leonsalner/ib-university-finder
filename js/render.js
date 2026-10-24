@@ -255,9 +255,11 @@ function countdown(days) {
 
 // ------------------------------------------------------------ filter chips
 
+// One checkbox row per value, inside a filter drop-down's pick-list. (These were
+// pill-shaped chips until the filters moved into a bar above the results.)
 export function renderChips(container, values, selected, onToggle) {
   container.replaceChildren(...values.map((value) => {
-    const label = el('label', 'chip');
+    const label = el('label', 'option');
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.value = value;

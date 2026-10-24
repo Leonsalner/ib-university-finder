@@ -267,56 +267,102 @@ svg:not(.sprite) {
 
 /* ------------------------------------------------------------- filters */
 
-.filters {
-  background: var(--surface);
-  border: 0;
-  border-radius: var(--r-xl);
-  margin: 0 0 1.5rem;
-  overflow: hidden;
-}
-
-.filters > summary {
+/* One warm panel across the top of the results. Search takes the slack; the
+   two number fields stay narrow; the three pick-lists sit together. It sticks
+   to the top of the window on wider screens so the filters stay in reach while
+   you scroll 700 cards — the job the old sidebar did. */
+.filterbar {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.9rem 1.1rem;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  list-style: none;
-  transition: background-color var(--dur) var(--ease);
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 0.9rem;
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.15rem;
+  background: var(--surface);
+  border-radius: var(--r-xl);
 }
-.filters > summary::-webkit-details-marker { display: none; }
-.filters > summary:hover { background: var(--surface-2); }
+.field-search { flex: 1 1 18rem; }
+.field-number { flex: 0 0 7.5rem; }
+.filterbar-menus { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.filterbar #f-clear { align-self: flex-end; }
 
-/* Two icons, one shown at a time — see the note in index.html. */
-.filters-chevron {
+/* A pick-list: a native <details>, so it opens from the keyboard with no
+   script. app.js adds only one-open-at-a-time and closing on an outside click
+   or Escape. */
+.dropdown { position: relative; }
+
+.dropdown-button {
   display: inline-flex;
-  margin-left: auto;
-  color: var(--ink-faint);
+  align-items: center;
+  gap: 0.45rem;
+  /* Same box as the text inputs beside it — padding, font size and line height
+     — so the row lines up exactly rather than being off by a pixel. */
+  padding: 0.55rem 0.85rem;
+  line-height: 1.55;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--inset);
+  color: var(--ink);
+  font-size: 0.94rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  white-space: nowrap;
+  transition: border-color var(--dur) var(--ease);
 }
-.filters[open] .chevron-closed,
-.filters:not([open]) .chevron-open { display: none; }
+.dropdown-button::-webkit-details-marker { display: none; }
+.dropdown-button:hover { border-color: var(--accent-line); }
+.dropdown-button svg { color: var(--ink-faint); }
+.dropdown[open] > .dropdown-button { border-color: var(--accent); }
+/* A list that is narrowing the results says so even when it is closed. */
+.dropdown:has(.dropdown-count:not(:empty)) > .dropdown-button { border-color: var(--accent); }
 
-.filters-count {
-  font-weight: 600;
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  color: var(--accent);
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-line);
-  padding: 0.1rem 0.5rem;
+.dropdown-count {
+  min-width: 1.35rem;
+  padding: 0.05rem 0.4rem;
   border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.filters-count:empty { display: none; }
+.dropdown-count:empty { display: none; }
 
-.filter-form {
-  padding: 0.35rem 1.1rem 1.2rem;
-  display: grid;
-  gap: 1.15rem;
-  border-top: 1px solid var(--line-soft);
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 20;
+  width: max-content;
+  min-width: 15rem;
+  max-width: min(22rem, calc(100vw - 2.5rem));
+  max-height: min(22rem, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
 }
+
+.options { display: grid; gap: 0.1rem; }
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--r-sm);
+  font-size: 0.92rem;
+  cursor: pointer;
+  user-select: none;
+}
+.option:hover { background: var(--surface); }
+.option:has(input:checked) { font-weight: 500; }
+.option input { flex: none; width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
 
 .field { display: grid; gap: 0.4rem; margin: 0; padding: 0; border: 0; min-width: 0; }
 /* Direct children only. A filter chip is a <label> inside this fieldset, so an
@@ -364,12 +410,6 @@ svg:not(.sprite) {
   pointer-events: none;
 }
 .input-wrap input { padding-left: 2.15rem; }
-
-.hint { margin: 0; font-size: 0.78rem; color: var(--ink-faint); }
-
-.field-row { display: grid; gap: 1.15rem; }
-
-.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
 .chip {
   display: inline-flex;
@@ -788,41 +828,16 @@ svg:not(.sprite) {
 }
 
 @media (min-width: 720px) {
-  .field-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filterbar { position: sticky; top: 0.75rem; z-index: 10; box-shadow: 0 8px 24px -18px rgba(20, 17, 15, 0.35); }
   /* minmax(0, 1fr), never plain 1fr: a bare 1fr refuses to shrink below its
      content's min-width, and one long unbroken requirement string then pushes
      the whole grid wider than the page. */
   .results, .skeletons { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 }
 
-/* The filter panel stops being a drawer above the results and becomes a rail
-   beside them — asymmetric by design, and it keeps the filters in view while
-   you scroll 700 cards. */
+/* With the filters above the results instead of beside them, the full width is
+   free for cards from 1080px. */
 @media (min-width: 1080px) {
-  .shell {
-    display: grid;
-    grid-template-columns: 19rem minmax(0, 1fr);
-    gap: 2rem;
-    align-items: start;
-  }
-  .filters {
-    position: sticky;
-    top: 1.5rem;
-    margin: 0;
-    max-height: calc(100dvh - 3rem);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    box-shadow: var(--shadow-rail);
-  }
-  .filters > summary { cursor: default; }
-  .field-row { grid-template-columns: 1fr; }
-  /* 23 subject areas in a 19rem rail: a stack of checkbox rows beats pills that
-     wrap mid-label into ragged heights. */
-  .chips { display: grid; gap: 0.3rem; }
-  .chip { justify-content: flex-start; border-radius: var(--r-md); }
-}
-
-@media (min-width: 1400px) {
   .results, .skeletons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
@@ -852,7 +867,7 @@ svg:not(.sprite) {
 @media print {
   body { background: #fff; color: #000; padding: 0; font-size: 11pt; }
 
-  .filters, .results-bar, .shortlist-bar, .site-footer, .masthead-stat,
+  .filterbar, .results-bar, .shortlist-bar, .site-footer, .masthead-stat,
   .issues, .skip-link, .star, .skeletons, .empty-icon { display: none; }
 
   .shell { display: block; }

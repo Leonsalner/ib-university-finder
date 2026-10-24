@@ -104,62 +104,72 @@
 
 <main class="shell">
 
-  <details class="filters" id="filter-panel">
-    <summary>
-      <span class="filters-title">Filters</span>
-      <span class="filters-count" id="filters-count"></span>
-      <span class="filters-chevron">
-        <svg class="chevron-closed" aria-hidden="true"><use href="#i-chevron"/></svg>
-        <svg class="chevron-open" aria-hidden="true"><use href="#i-chevron-up"/></svg>
-      </span>
-    </summary>
+  <!-- Filters run across the top of the results. Subject area, country and
+       language are drop-down pick-lists rather than walls of chips: 23 subject
+       areas laid out as chips took a full screen of height. Each is a native
+       <details>, so it opens from the keyboard with no script; app.js only adds
+       closing on an outside click or Escape, and one-open-at-a-time. -->
+  <form class="filterbar" id="filter-form" autocomplete="off" aria-label="Filters">
 
-    <form id="filter-form" class="filter-form" autocomplete="off">
-
-      <div class="field">
-        <label for="f-search">Search</label>
-        <div class="input-wrap">
-          <svg class="input-icon" aria-hidden="true"><use href="#i-search"/></svg>
-          <input type="search" id="f-search" name="search"
-                 placeholder="University, city, programme, country">
-        </div>
+    <div class="field field-search">
+      <label for="f-search">Search</label>
+      <div class="input-wrap">
+        <svg class="input-icon" aria-hidden="true"><use href="#i-search"/></svg>
+        <input type="search" id="f-search" name="search"
+               placeholder="University, city, programme, country">
       </div>
+    </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label for="f-points">My predicted points</label>
-          <input type="number" id="f-points" name="points" min="24" max="45" step="1"
-                 inputmode="numeric" placeholder="e.g. 36">
-          <p class="hint">Shows programmes asking for this or less.</p>
+    <div class="field field-number">
+      <label for="f-points">My points</label>
+      <input type="number" id="f-points" name="points" min="24" max="45" step="1"
+             inputmode="numeric" placeholder="e.g. 36"
+             title="Shows programmes asking for this many IB points or fewer">
+    </div>
+
+    <div class="field field-number">
+      <label for="f-tuition">Max fee &euro;/yr</label>
+      <input type="number" id="f-tuition" name="tuition" min="0" step="500"
+             inputmode="numeric" placeholder="e.g. 3000"
+             title="The EU-student fee">
+    </div>
+
+    <div class="filterbar-menus">
+      <details class="dropdown" id="dd-subjects">
+        <summary class="dropdown-button">
+          <span>Subject area</span>
+          <span class="dropdown-count" id="dd-subjects-count"></span>
+          <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+        </summary>
+        <div class="dropdown-panel" role="group" aria-label="Subject area">
+          <div class="options" id="f-subjects"></div>
         </div>
-
-        <div class="field">
-          <label for="f-tuition">Max tuition &euro;/year</label>
-          <input type="number" id="f-tuition" name="tuition" min="0" step="500"
-                 inputmode="numeric" placeholder="e.g. 3000">
-          <p class="hint">EU-student fee.</p>
+      </details>
+      <details class="dropdown" id="dd-countries">
+        <summary class="dropdown-button">
+          <span>Country</span>
+          <span class="dropdown-count" id="dd-countries-count"></span>
+          <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+        </summary>
+        <div class="dropdown-panel" role="group" aria-label="Country">
+          <div class="options" id="f-countries"></div>
         </div>
-      </div>
+      </details>
+      <details class="dropdown" id="dd-languages">
+        <summary class="dropdown-button">
+          <span>Language</span>
+          <span class="dropdown-count" id="dd-languages-count"></span>
+          <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+        </summary>
+        <div class="dropdown-panel" role="group" aria-label="Language">
+          <div class="options" id="f-languages"></div>
+        </div>
+      </details>
+    </div>
 
-      <fieldset class="field">
-        <legend>Subject area</legend>
-        <div class="chips" id="f-subjects"></div>
-      </fieldset>
+    <button type="button" id="f-clear" class="button button-quiet">Clear all</button>
 
-      <fieldset class="field">
-        <legend>Country</legend>
-        <div class="chips" id="f-countries"></div>
-      </fieldset>
-
-      <fieldset class="field">
-        <legend>Language of instruction</legend>
-        <div class="chips" id="f-languages"></div>
-      </fieldset>
-
-      <button type="button" id="f-clear" class="button">Clear all filters</button>
-
-    </form>
-  </details>
+  </form>
 
   <div class="stream">
 
