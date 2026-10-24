@@ -19,7 +19,11 @@ Ireland breaks down as UCD 140, UL 87, Trinity 83, DCU 71, Maynooth 64,
 UCC 56, Galway 54.
 
 **Every row is `AI-DRAFT`.** Nobody has verified a single one against an
-official page. The site says so, loudly, on a banner and on every card.
+official page. The site says so once, in the banner at the top. It used to say
+it on every card too ("Gathered <date> · nobody has checked this yet"); that was
+removed on 2026-10-24 as noise repeated 757 times. A card now shows a
+provenance line only once someone signs it off — set `verified_by` to real
+initials and it reads "Checked <date> by <initials>".
 
 ## The next obvious jobs, in order
 

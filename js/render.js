@@ -185,27 +185,24 @@ function setStarState(button, row, starred) {
 
 function provenance(row) {
   const foot = el('div', 'card-foot');
-  const verified = el('p', 'verified');
 
-  // One chain, so the text and its badge are chosen together. Two chains let a
-  // row claim "Never checked" and "may be out of date" at the same time.
+  // Every card used to end "Gathered <date> · nobody has checked this yet".
+  // Removed 2026-10-24 at Jakub's request: the banner at the top of the page
+  // already says it once for the whole dataset, and repeated on 757 cards it was
+  // noise. A line now appears only when there is something specific to say —
+  // a row a person has actually signed off, or an invented sample row.
+  //
+  // One chain, so the text and its badge are chosen together.
   if (row.isSample) {
-    verified.textContent = 'Invented sample row';
+    const verified = el('p', 'verified', 'Invented sample row');
     verified.append(el('span', 'badge-danger', 'not real data'));
-  } else if (row.needsHumanCheck) {
-    verified.textContent = row.lastVerified
-      ? `Gathered ${longDate.format(row.lastVerified)}`
-      : 'Gathered automatically';
-    verified.append(el('span', 'badge-stale', 'nobody has checked this yet'));
-  } else if (!row.lastVerified) {
-    verified.textContent = 'Never checked';
-    verified.append(el('span', 'badge-stale', 'nobody has checked this yet'));
-  } else {
-    verified.textContent = `Checked ${longDate.format(row.lastVerified)}`;
+    foot.append(verified);
+  } else if (!row.needsHumanCheck && row.lastVerified) {
+    const verified = el('p', 'verified', `Checked ${longDate.format(row.lastVerified)}`);
     if (row.verifiedBy) verified.textContent += ` by ${row.verifiedBy}`;
     if (row.isStale) verified.append(el('span', 'badge-stale', 'may be out of date'));
+    foot.append(verified);
   }
-  foot.append(verified);
 
   // data.js already ran these through safeUrl and stored null or a normalised
   // href, so there is nothing left to validate here.
