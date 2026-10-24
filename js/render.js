@@ -288,11 +288,12 @@ export function renderSourceBanner(node, meta) {
     parts.push(`Live data is unavailable, so this is a saved copy from ${when}. Deadlines may have moved since.`);
   }
 
+  // Shown while any row is still unverified. Worded as what the site is for
+  // rather than how the data was made — Jakub's call, 2026-10-24.
   if (meta.draftCount > 0) {
-    const all = meta.draftCount === meta.total;
     parts.push(
-      `${all ? 'Every entry' : `${meta.draftCount} of ${meta.total} entries`} was gathered ` +
-      `automatically and has not been checked by a person yet. Open the official page before you rely on anything here.`
+      'This site is a starting point for research, not a source of truth. Always check ' +
+      'requirements, fees and deadlines on the university’s official page before you apply.'
     );
   }
 
