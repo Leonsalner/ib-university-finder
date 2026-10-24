@@ -131,7 +131,7 @@ const esc = (v) => (/[",\r\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""
 
 export const COLUMNS = [
   'programme_id', 'university_id', 'city', 'programme', 'degree_type', 'subject_area', 'language',
-  'ib_points_min', 'ib_subjects', 'other_requirements', 'tuition_eu', 'tuition_noneu',
+  'ib_points_min', 'ib_subjects', 'other_requirements', 'admission', 'tuition_eu', 'tuition_noneu',
   'english_requirement', 'application_deadline', 'deadline_notes', 'official_url',
   'last_verified', 'verified_by',
 ];

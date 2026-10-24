@@ -54,6 +54,8 @@
   --tint-nl-ink: #14427d;
   --tint-ie: #e7f1ea;
   --tint-ie-ink: #1a5437;
+  --tint-cz: #f1edf8;
+  --tint-cz-ink: #4b2d7f;
 
   /* The inset inside a tinted panel — white, because the panel is tinted. The
      inverse of the old design, where a tinted block sat on a white card. */
@@ -522,6 +524,9 @@ svg:not(.sprite) {
 .c-ireland { background: var(--tint-ie); }
 .c-ireland .card-title,
 .c-ireland .req-number { color: var(--tint-ie-ink); }
+.c-czechia { background: var(--tint-cz); }
+.c-czechia .card-title,
+.c-czechia .req-number { color: var(--tint-cz-ink); }
 .card.is-past { opacity: 0.65; }
 .card.is-past:hover { opacity: 1; }
 
@@ -669,8 +674,10 @@ svg:not(.sprite) {
 /* "Not checked" is not the same as "none" and must never read like it. */
 .req-unknown { color: var(--warn); font-weight: 600; }
 
-/* Each extra hurdle as its own chip, so three of them scan as three. */
-.req-tag, .req-lang {
+/* Each extra hurdle as its own chip, so three of them scan as three. The
+   admission route reads the same way: "Entrance exam" and "can be waived" are
+   two facts, not one sentence. */
+.req-tag, .req-lang, .req-admission {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -679,6 +686,7 @@ svg:not(.sprite) {
   line-height: 1.4;
 }
 .req-lang { color: var(--ink-soft); border-color: var(--line); }
+.req-admission { font-weight: 500; }
 
 .req-none { margin: 0; font-size: 0.88rem; font-weight: 500; color: var(--ink-soft); }
 

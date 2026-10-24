@@ -49,6 +49,7 @@ Only if it is not already on the `universities` tab.
 | `tuition_noneu_default` | Non-EU fee. **Optional** — nothing on the site reads it | `20200` |
 | `baseline_requirement` | What any diploma must clear here, before programme-specific rules | `a school diploma equivalent to Dutch VWO` |
 | `english_requirement_default` | The usual requirement here | `IELTS 6.5` |
+| `admission_default` | How places are decided, **only if it is the same for every course** here. Otherwise blank | `Places offered in order of CAO points` |
 | `student_life_url` | Student union page or city subreddit | |
 | `last_verified` | Today's date, `YYYY-MM-DD` | `2026-09-14` |
 | `verified_by` | Your initials | `JP` |
@@ -67,6 +68,7 @@ Only if it is not already on the `universities` tab.
 | `ib_points_min` | **A number only**, or blank. Never `34-36`, never `34 (typical)` |
 | `ib_subjects` | Subject requirements only. Type `none` if the university says there are none. **Leave blank if you haven't checked** |
 | `other_requirements` | Anything else you must do, separated by ` · `. See below |
+| `admission` | How places are decided, separated by ` · `. Blank uses the university's `admission_default`; `?` means unknown. See below |
 | `tuition_eu` | **Leave blank** unless this programme differs from the university default |
 | `tuition_noneu` | Optional — the site does not display it. Skip it unless someone asks for non-EU fees |
 | `english_requirement` | Leave blank unless it differs from the university default |
@@ -75,12 +77,13 @@ Only if it is not already on the `universities` tab.
 | `official_url` | Direct link to the admissions page. Must start with `https://` |
 | `last_verified`, `verified_by` | Today's date and your initials |
 
-### The three requirement columns
+### The requirement columns
 
-A card shows four kinds of requirement, and only the ones that apply:
+A card shows five kinds of requirement, and only the ones that apply:
 
 | Column | Example |
 |---|---|
+| `admission` | `Entrance exam: TSP aptitude test · Exam can be waived on set criteria` |
 | `ib_points_min` | `30` — most Dutch universities publish nothing here, which is fine |
 | `ib_subjects` | `Maths AA HL + Physics HL required` |
 | `other_requirements` | `Numerus fixus (440 places) · Selection exam` |
@@ -106,6 +109,19 @@ and keep them short, they render as chips:
 `Places allocated by unweighted lottery`
 
 Leave it blank when there is nothing extra — most programmes have nothing.
+
+**`admission`** says how the place is actually decided, which is not the same
+in every country and changes what every other number on the card means. Keep to
+the wording already in use so the cards read alike:
+
+`Open entry: meet the requirements, get a place` · `Numerus fixus: limited places` ·
+`Selective: assessed on your application` · `Places offered in order of CAO points`
+(set once on each Irish university) · `Entrance exam: …` · `Scio test` ·
+`Exam can be waived on set criteria`
+
+Czech universities admit by entrance exam, not IB points, so a Czech row's
+`ib_points_min` is blank and `admission` carries the real hurdle. Mark anything
+that comes from last year's rules with `(2026 rules)`.
 
 **Put IB English grades in `english_requirement`, not `ib_subjects`.** A student
 looking for "what English do I need" looks at the language line.

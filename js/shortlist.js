@@ -39,6 +39,7 @@ const EXPORT_COLUMNS = [
   ['Country', (r) => r.country],
   ['Deadline', (r) => (r.deadline ? r.deadline.toISOString().slice(0, 10) : '')],
   ['Deadline notes', (r) => r.deadlineNotes],
+  ['Admission', (r) => r.admission.join(BULLET)],
   ['IB points', (r) => (r.ibPointsMin === null ? 'not published' : String(r.ibPointsMin))],
   ['Subject requirements', (r) => (r.noSubjectsRequired ? 'none required' : (r.ibSubjects || 'not checked'))],
   ['Other requirements', (r) => r.otherRequirements.join(BULLET)],

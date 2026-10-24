@@ -8,12 +8,25 @@ pick it up without re-deriving decisions. Update it when the state changes.
 
 ## State
 
-757 programmes · 20 universities · 2 countries · all checks passing.
+1181 programmes · 25 universities · 3 countries · all checks passing.
 
 | Country | Universities | Programmes | Notes |
 |---|---|---|---|
 | Netherlands | 13 | 202 | **Complete** — every Dutch research university |
 | Ireland | 7 | 555 | **Complete** — every Irish university |
+| Czechia | 5 | 424 | **The big five**, added 2026-10-24 — Czech- and English-taught |
+
+Czechia breaks down as Charles 165, Masaryk 145, ČVUT 46, VUT 42, VŠE 26.
+Full-time bachelor and long-cycle master's (medicine, law, pharmacy) only.
+
+Every card now has an **Admission** line (added 2026-10-24, Jakub's call):
+how the place is decided — open entry, numerus fixus, a selective
+application, CAO points, or a Czech entrance exam. Irish rows inherit
+`Places offered in order of CAO points` from `admission_default` on the
+universities tab; Dutch rows were classified from their own
+`other_requirements` (numerus fixus / selective / open), six left `?`
+where nothing on record says; Czech rows come from each faculty's own
+description of its entrance procedure.
 
 Ireland breaks down as UCD 140, UL 87, Trinity 83, DCU 71, Maynooth 64,
 UCC 56, Galway 54.
@@ -45,12 +58,29 @@ initials and it reads "Checked <date> by <initials>".
 3. **Connect the Google Sheet.** Two tabs, published to the web as CSV, URLs
    pasted into `js/config.js`. Until then the site reads `data/*.csv` from the
    repo and nobody can maintain it without Git.
-4. **Living costs.** Blank for all 20 universities. Nineteen numbers would
+4. **Czech deadlines that are still last year's.** On 2026-10-24 ČVUT's FSv,
+   FEL, FJFI, FD and FBMI, and VŠE's FFÚ, FIS, NF and FM had not published their
+   2027 round. Their rows carry no deadline and their admission line says
+   `(2026 rules)`. Re-run `tools/import-cvut.mjs` and `tools/import-vse.mjs`
+   after their pages update (usually by November), and fill the tables there.
+5. **Living costs.** Blank for all 25 universities. Nineteen numbers would
    improve the tuition filter more than anything else, because rent dwarfs
    tuition everywhere in this dataset.
 
 ## Known gaps
 
+- **Czech gaps** (424 rows): 65 have no deadline — the faculties above plus
+  English-taught programmes whose 2027 dates are not out (Masaryk's medicine,
+  pharmacy and arts; four VŠE English bachelors). 7 English-taught rows have no
+  fee (`?`). 10 have no admission line. Every Czech-taught row shows
+  "Subjects: Not checked yet" — Czech faculties admit on their own exams, and
+  no page was found that states an IB subject list per programme, which is not
+  the same as stating there is none.
+- **Three Czech deadlines fall before Christmas**: VUT Design and Volné umění
+  (30 Nov 2026, portfolio by 3 Dec) and ČVUT Architektura a urbanismus (30 Nov).
+- **Three Charles FTVS rows contradict themselves**: Fyzioterapie, Trenér and
+  Kondiční trenér are listed as Czech-taught but carry a fee "za studium v
+  cizím jazyce". Their fee is `?` and the note says so.
 - 5 programmes have no deadline: VU Law in Society, Leiden Archaeology, Leiden
   University College, and the two Utrecht colleges. Was 20 — fourteen Leiden
   deadlines and Tilburg Psychology were recovered on 2026-08-21.
@@ -297,8 +327,30 @@ a per-country system.
 - **Denmark** was investigated and set aside: the University of Copenhagen
   teaches every bachelor in Danish, and the English-taught undergraduate
   offering is thin and split across seven institutions.
-- **Czechia** is the best unexplored option for Slovak students specifically:
-  Czech-taught degrees are free and Slovak speakers can realistically take them.
+- **Czechia** — added 2026-10-24, big five only. Czech-taught study at a
+  public university is free, Slovaks included ("Na české vysoké škole neplatíš
+  školné", Masaryk's page for Slovak applicants). English-taught study is
+  charged, mostly in CZK; the importers convert at the ČNB rate on the day and
+  keep the koruna figure in the note. Admission is by **faculty entrance exam**
+  (Masaryk's TSP, Scio NSZ tests, subject tests), often waivable — so Czech rows
+  have no `ib_points_min` and the `admission` column carries the real hurdle.
+  Charles's English-taught medicine and science programmes waive the exam for
+  strong IB results (e.g. 1st Faculty: IB 36+ with 13+ from two HL sciences);
+  Masaryk ECON's English bachelors ask for IB 28+ with Maths 4+ but **only
+  final results count**, so with a 30 April deadline an IB student needs a Scio
+  test instead. A Slovak maturita is accepted as it is under the Czech–Slovak
+  equivalence agreement; Masaryk also states an IB Diploma is submitted as is.
+  Charles's Faculty of Arts and medical faculties ask for proof of Czech or
+  Slovak — a Slovak-language maturita exam is the first route listed.
+- **Where each Czech university keeps its data**: Masaryk — eleven category
+  pages plus a uniform programme page with a `#prijimaci-rizeni` section.
+  Charles — `nakarlovku.cz/search.php` (JSON, needs the session cookie its own
+  page sets) and the SIS admissions record per programme, which has the
+  deadline, places, fee and "Způsob ověření". VUT — its e-application lists
+  what is open for 2027/28; a green "do" date is a deadline, a yellow "od" date
+  only an opening. VŠE and ČVUT — no central source; one table per faculty in
+  the importer. cvut.cz serves an incomplete certificate chain, so that importer
+  runs with `node --use-system-ca`; prihlaska.cvut.cz did not answer at all.
 
 ## Running it
 

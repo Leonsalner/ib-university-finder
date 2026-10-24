@@ -97,7 +97,8 @@ function requirements(row) {
   const nothingAtAll = row.ibPointsMin === null &&
                        row.noSubjectsRequired &&
                        row.otherRequirements.length === 0 &&
-                       row.englishRequirement.length === 0;
+                       row.englishRequirement.length === 0 &&
+                       row.admission.length === 0;
 
   if (nothingAtAll) {
     // The baseline differs by country, so it comes from the universities tab.
@@ -109,6 +110,13 @@ function requirements(row) {
   }
 
   const list = el('dl', 'req');
+
+  // --- admission ---------------------------------------------------------
+  // First, because it frames the rest: a points figure means something
+  // different under open entry, a CAO ranking and a Czech entrance exam.
+  if (row.admission.length) {
+    reqRow(list, 'Admission', row.admission.map((t) => el('span', 'req-admission', t)));
+  }
 
   // --- points ------------------------------------------------------------
   if (row.ibPointsMin === null) {

@@ -98,6 +98,25 @@ check('"none" means no subjects required', row('p-none').noSubjectsRequired === 
 check('blank subjects means NOT CHECKED, not none',
   row('p-inherit').noSubjectsRequired === false && row('p-unknown').noSubjectsRequired === false);
 
+// ------------------------------------------------------------- admission
+
+section('Admission: university default, own value, and "?"');
+const uniA = [
+  'university_id,name,city,country,admission_default,last_verified,verified_by',
+  'a,Points University,Town,Testland,Places go by points,2026-08-14,TT',
+].join('\n') + '\n';
+const progA = [
+  'programme_id,university_id,programme,admission,official_url,last_verified,verified_by',
+  'a-inherit,a,Inherits,,https://example.org,2026-08-14,TT',
+  'a-own,a,Own,Entrance exam · Can be waived,https://example.org,2026-08-14,TT',
+  'a-unknown,a,Unknown,?,https://example.org,2026-08-14,TT',
+].join('\n') + '\n';
+const { programmes: adm } = await load(uniA, progA);
+const admOf = (id) => adm.find((p) => p.id === id).admission;
+equal('blank admission inherits the university default', admOf('a-inherit'), ['Places go by points']);
+equal('own admission wins and splits on the bullet', admOf('a-own'), ['Entrance exam', 'Can be waived']);
+equal('"?" admission does not inherit', admOf('a-unknown'), []);
+
 // ---------------------------------------------------------------- bad input
 
 section('Bad spreadsheet input is reported, never silently swallowed');
@@ -161,6 +180,11 @@ check('loads with no spreadsheet problems', liveMeta.issues.length === 0,
 check('every programme has an official link', live.every((p) => p.officialUrl),
   live.filter((p) => !p.officialUrl).map((p) => p.id).join(', '));
 check('every programme belongs to a university', live.every((p) => p.university));
+// Czech universities default to a 0 fee because Czech-taught study is free.
+// English-taught study never is, so it must never inherit that 0.
+const freeEnglish = live.filter((p) => p.country === 'Czechia' && p.languages.includes('English') && p.tuitionEu === 0);
+check('no English-taught Czech programme shows as free', freeEnglish.length === 0,
+  freeEnglish.map((p) => p.id).join(', '));
 console.log(`        ${live.length} programmes across ${new Set(live.map((p) => p.university)).size} universities`);
 
 console.log(failures ? `\n${failures} FAILED` : '\nAll checks passed.');

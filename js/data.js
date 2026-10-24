@@ -109,6 +109,10 @@ function build(universityRows, programmeRows, today) {
       tuitionEuDefault: number(row.tuition_eu_default, issues, `Universities row ${row.__row}, tuition_eu_default`),
       tuitionNonEuDefault: number(row.tuition_noneu_default, issues, `Universities row ${row.__row}, tuition_noneu_default`),
       englishRequirementDefault: text(row.english_requirement_default),
+      // How places are decided, when it is the same across the university —
+      // every Irish course goes through CAO points. Czech and Dutch rows vary
+      // by programme, so they leave this blank and say it per row.
+      admissionDefault: text(row.admission_default),
       // What a diploma has to clear before any programme-specific requirement.
       // It differs by country, so it cannot be a sentence baked into the
       // renderer — the Netherlands says VWO, nowhere else does.
@@ -188,6 +192,10 @@ function build(universityRows, programmeRows, today) {
       ibSubjects: subjects === NO_REQUIREMENT ? '' : subjects,
       noSubjectsRequired: subjects === NO_REQUIREMENT,
       otherRequirements: list(row.other_requirements, BULLET),
+
+      // How the place is actually decided: open entry, a ranking, an entrance
+      // exam. Same inherit / "?" rules as english_requirement, same bullet.
+      admission: list(inheritText(row.admission, uni.admissionDefault), BULLET),
 
       // Split on the same bullet as other_requirements — the docs teach one
       // separator, so every column that uses it must honour it.

@@ -58,6 +58,7 @@ const PAIRS = [
   ['--link',        '--inset',       '.official-link'],
   ['--tint-nl-ink', '--inset',       '.req-number on a Dutch card (33.6px serif)', 3],
   ['--tint-ie-ink', '--inset',       '.req-number on an Irish card (33.6px serif)', 3],
+  ['--tint-cz-ink', '--inset',       '.req-number on a Czech card (33.6px serif)', 3],
 
   // on a Dutch card
   ['--tint-nl-ink', '--tint-nl',     '.card-title'],
@@ -70,6 +71,12 @@ const PAIRS = [
   ['--ink',         '--tint-ie',     '.facts dd'],
   ['--ink-soft',    '--tint-ie',     '.card-uni'],
   ['--ink-faint',   '--tint-ie',     '.card-place, .degree, .facts dt, .verified'],
+
+  // on a Czech card
+  ['--tint-cz-ink', '--tint-cz',     '.card-title'],
+  ['--ink',         '--tint-cz',     '.facts dd'],
+  ['--ink-soft',    '--tint-cz',     '.card-uni'],
+  ['--ink-faint',   '--tint-cz',     '.card-place, .degree, .facts dt, .verified'],
 
   // the brand accent, which appears only outside cards
   ['--accent',      '--accent-soft', '.filters-count, a checked .chip'],
