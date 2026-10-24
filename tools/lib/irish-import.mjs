@@ -95,13 +95,13 @@ export async function importUniversity(cfg) {
       ib = lowestIB(entry.latest.points);
       if (ib === null && needsMaths) {
         ib = lowestIB(entry.latest.points - 25);
-        if (ib !== null) notes.push('Reachable only with the 25 bonus points for HL Maths at grade 4 or better.');
+        if (ib !== null) notes.push('Only reachable with the 25 HL Maths bonus points.');
       } else if (ib !== null && needsMaths) {
-        notes.push('A grade 4+ in HL Maths adds 25 bonus points, so one point lower may suffice.');
+        notes.push('HL Maths 4+ adds 25 bonus points.');
       }
       if (ib === null) {
         skipped.aboveReach++;
-        notes.push('That is ABOVE the 625 points an IB student can reach (45 plus the maths bonus), so no IB equivalent can be given.');
+        notes.push('Above the 625-point IB maximum, so no IB equivalent.');
       }
     }
 
@@ -145,9 +145,7 @@ export async function importUniversity(cfg) {
     if (n < 2) continue;
     shared++;
     r.notes.push(
-      `You do not apply to this programme directly: entry is through CAO code ${r.code} `
-      + `(${cao.get(r.code).title}), a shared route covering ${n} programmes here. The points above `
-      + 'are that code\'s, not this programme\'s alone.',
+      `Shared CAO code ${r.code} (${cao.get(r.code).title}): the cutoff covers ${n} programmes.`,
     );
   }
 

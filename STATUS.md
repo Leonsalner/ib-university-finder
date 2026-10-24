@@ -182,6 +182,18 @@ a per-country system.
 
 ## Decisions already made, so they are not relitigated
 
+- **Card notes are short** (rewritten 2026-10-24, median 532 → 118 characters).
+  The Free Fees explanation that sat on all 555 Irish cards is gone — the reason
+  Irish fees are the contribution plus levy is recorded once, below, not on every
+  card — and so is every other sentence explaining a fee. The repeated cutoff
+  disclaimers are one short line each, and notes written before the August
+  checks that contradicted them ("UNUSUALLY EARLY DEADLINE — 1 January" on
+  Groningen rows that are now 1 May, "DEADLINE NOT YET GATHERED" on Leiden rows
+  that now have one) were rewritten. The wording lives in `caoNote` in
+  `tools/lib/cao-points.mjs` and the importers, so a re-run produces the short
+  form. Leiden University College's fee is now `?` rather than the €2,694 default
+  its note had warned was probably wrong.
+
 - **No save button, no shortlist** (removed 2026-10-24 at Jakub's request). The
   per-card bookmark is gone, and with it the only way to add to the shortlist,
   so the shortlist bar, its CSV export and Print are hidden too. The shortlist

@@ -115,12 +115,12 @@ for (const c of links) {
     ib = lowestIB(entry.latest.points);
     if (ib === null && needsMaths) {
       ib = lowestIB(entry.latest.points - 25);
-      if (ib !== null) notes.push('Reachable only with the 25 bonus points for HL Maths at grade 4 or better.');
+      if (ib !== null) notes.push('Only reachable with the 25 HL Maths bonus points.');
     } else if (ib !== null && needsMaths) {
-      notes.push('A grade 4+ in HL Maths adds 25 bonus points, so one point lower may suffice.');
+      notes.push('HL Maths 4+ adds 25 bonus points.');
     }
     if (ib === null) {
-      notes.push('That is ABOVE the 625 points an IB student can reach (45 plus the maths bonus), so no IB equivalent can be given.');
+      notes.push('Above the 625-point IB maximum, so no IB equivalent.');
     }
   } else if (entry) {
     notes.push(caoNote(entry));

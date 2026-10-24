@@ -93,11 +93,10 @@ for (const c of courses) {
   // number was a real cutoff, an every-qualified-applicant year, or a score
   // that still needed a test or a random draw to get past.
   const entry = cao.get(c.cao);
-  const notes = [`UCD asks for ${ib} IB points.`];
+  const notes = [`UCD's stated minimum: ${ib} IB points.`];
 
   if (entry) {
     notes.push(caoNote(entry));
-    notes.push('In a competitive year the cutoff, not the stated minimum, is what decides the offer.');
   } else if (pts) {
     notes.push(`UCD lists a ${pts[2]} point CAO cutoff for ${pts[1]}${c.cao ? ` under code ${c.cao}` : ''}.`);
   }
@@ -136,8 +135,7 @@ for (const r of rows) {
   if (!r.cao || perCode.get(r.cao) < 2) continue;
   shared++;
   r.notes.push(
-    `You do not apply to this programme directly: entry is through CAO code ${r.cao}, a shared route `
-    + `covering ${perCode.get(r.cao)} UCD programmes. The cutoff above is that code's, not this programme's alone.`,
+    `Shared CAO code ${r.cao}: the cutoff covers ${perCode.get(r.cao)} UCD programmes.`,
   );
 }
 

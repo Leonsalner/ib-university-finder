@@ -74,29 +74,26 @@ export async function fetchCaoPoints() {
  * The sentence that goes in deadline_notes for a CAO-entry course, given what
  * the CAO published about it. Returns null where there is nothing to say.
  */
+// Kept short on purpose (2026-10-24): it appears on 500-odd cards, and the long
+// version made every card a paragraph. A course needing a test or interview
+// gets no sentence here, because the importers already tag it under "Other".
 export function caoNote(entry) {
   if (!entry) return null;
-  const { latest, round1, round2 } = entry;
-  const round = round2 ? 'Round 2' : 'Round 1';
+  const { latest } = entry;
 
   if (latest.aqa) {
-    return `In 2025 the CAO offered a place to every qualified applicant for ${entry.code} — there was no points `
-      + 'cutoff, so meeting the university\'s minimum entry requirements is what matters here, not a points total.';
+    return `2025: every qualified applicant got a place (code ${entry.code}) — no cutoff.`;
   }
   if (latest.points === null) {
-    return `The CAO lists ${entry.code} as a new competition for available places in 2025, with no points cutoff published.`;
+    return `No 2025 cutoff published (code ${entry.code}).`;
   }
 
-  const parts = [`Last year's CAO cutoff was ${latest.points} points (2025 ${round}; code ${entry.code}).`];
-  if (round2 && round1?.points && round1.points !== latest.points) {
-    parts.push(`Round 1 closed higher, at ${round1.points}.`);
-  }
-  parts.push('Cutoffs are set by demand each August and move year to year — this is not a guaranteed minimum.');
-  if (latest.test) {
-    parts.push('The CAO flags this course as also requiring a test, interview, portfolio or audition, so points alone never decided the offer.');
-  }
-  if (latest.notAll) {
-    parts.push('Not everyone on that score was offered a place — the last places went to random selection.');
-  }
+  // The latest round is the one quoted — Round 2 where there was one, which is
+  // lower than the Round 1 figure universities tend to advertise.
+  const parts = [
+    `2025 CAO cutoff: ${latest.points} points (code ${entry.code}).`,
+    'Changes yearly — not a guaranteed minimum.',
+  ];
+  if (latest.notAll) parts.push('Some applicants on that score missed out (random draw).');
   return parts.join(' ');
 }
