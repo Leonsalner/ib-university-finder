@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-08-21",
+    "generated_at": "2026-10-24",
     "note": "Offline copy shown only when the Google Sheet cannot be reached."
   },
   "universities": [
@@ -14,7 +14,7 @@
       "tuition_eu_default": "2694",
       "tuition_noneu_default": "",
       "baseline_requirement": "a school diploma equivalent to Dutch VWO",
-      "english_requirement_default": "IELTS 6.5 or TOEFL iBT 90 — exempt if English was an IB exam subject with a pass",
+      "english_requirement_default": "IELTS 6.5 or TOEFL iBT 90 · or IB English with any pass grade",
       "student_life_url": "",
       "last_verified": "2026-08-13",
       "verified_by": "AI-DRAFT"
@@ -44,7 +44,7 @@
       "tuition_eu_default": "2694",
       "tuition_noneu_default": "",
       "baseline_requirement": "a school diploma equivalent to Dutch VWO",
-      "english_requirement_default": "IELTS 6.0 (min 6.0 speaking) or TOEFL iBT 80 (min 20 speaking) — or IB English A SL/HL 5; English B HL 6; English B SL 7",
+      "english_requirement_default": "IELTS 6.0 (min 6.0 speaking) or TOEFL iBT 80 (min 20 speaking) · or IB English A SL/HL 5; English B HL 6; English B SL 7",
       "student_life_url": "",
       "last_verified": "2026-08-13",
       "verified_by": "AI-DRAFT"
@@ -459,7 +459,7 @@
       "other_requirements": "Numerus fixus (600 places) · Selection assessment · Max 3 selection attempts",
       "tuition_eu": "",
       "tuition_noneu": "",
-      "english_requirement": "IELTS 7.0 (min 6.0 in each part) or TOEFL iBT 95 (min 20 in each part) — exempt with IB English A HL/SL 4+ or English B HL 4+",
+      "english_requirement": "IELTS 7.0 (min 6.0 in each part) or TOEFL iBT 95 (min 20 in each part) · or IB English A HL/SL 4+ or English B HL 4+",
       "application_deadline": "2027-01-15",
       "deadline_notes": "Deadline 15 January.",
       "official_url": "https://www.eur.nl/en/bachelor/international-bachelor-psychology/admission",
@@ -479,7 +479,7 @@
       "other_requirements": "Motivation letter",
       "tuition_eu": "",
       "tuition_noneu": "",
-      "english_requirement": "IELTS 7.0 or TOEFL iBT 94 or Cambridge C1 Advanced 180 — exempt with IB English A HL/SL 4+ or English B HL 4+",
+      "english_requirement": "IELTS 7.0 or TOEFL iBT 94 or Cambridge C1 Advanced 180 · or IB English A HL/SL 4+ or English B HL 4+",
       "application_deadline": "2027-03-15",
       "deadline_notes": "Application portal closes 15 March; register in Studielink first, from 1 October. Proof of English by 1 August for EEA students. Applications reviewed on a rolling basis, so apply early.",
       "official_url": "https://www.eur.nl/en/bachelor/international-bachelor-communication-and-media/admission",
@@ -499,7 +499,7 @@
       "other_requirements": "",
       "tuition_eu": "",
       "tuition_noneu": "",
-      "english_requirement": "IELTS 6.5 or TOEFL iBT 90 or Cambridge C1 Advanced 180 — exempt with IB English A HL/SL or English B HL",
+      "english_requirement": "IELTS 6.5 or TOEFL iBT 90 or Cambridge C1 Advanced 180 · or IB English A HL/SL or English B HL",
       "application_deadline": "2027-05-01",
       "deadline_notes": "Application portal closes 1 May for EEA students; register in Studielink first, from 1 October. Proof of English by 1 August.",
       "official_url": "https://www.eur.nl/en/bachelor/international-bachelor-arts-and-culture-studies/admission",
@@ -559,7 +559,7 @@
       "other_requirements": "",
       "tuition_eu": "",
       "tuition_noneu": "",
-      "english_requirement": "IELTS 6.5 (min 6.0 in each part) or TOEFL iBT 90 (min 20 in each part) — exempt with IB English A HL/SL 4+ or English B HL 4+",
+      "english_requirement": "IELTS 6.5 (min 6.0 in each part) or TOEFL iBT 90 (min 20 in each part) · or IB English A HL/SL 4+ or English B HL 4+",
       "application_deadline": "2027-04-01",
       "deadline_notes": "Application deadline 1 April; test scores must be in by the same date.",
       "official_url": "https://www.eur.nl/en/bachelor/management-international-social-challenges/admission",
