@@ -182,6 +182,14 @@ a per-country system.
 
 ## Decisions already made, so they are not relitigated
 
+- **No save button, no shortlist** (removed 2026-10-24 at Jakub's request). The
+  per-card bookmark is gone, and with it the only way to add to the shortlist,
+  so the shortlist bar, its CSV export and Print are hidden too. The shortlist
+  code in `js/app.js` and `js/shortlist.js` is left in place: restoring the
+  button in `js/render.js` brings the feature back. The Stage 2 "compare your
+  shortlist side by side" view depended on it and needs a different way to pick
+  programmes if it is still wanted.
+
 - **One row per programme**, joined to a university by `university_id`. Two
   tabs, so university-level facts are typed once.
 - **Unknown never hides a programme** from a filter. It is shown and labelled.

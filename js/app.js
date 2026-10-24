@@ -224,7 +224,11 @@ function renderCounts(shown) {
   dom.clear.disabled = active === 0;
 
   const saved = shortlist.size;
-  dom.shortlistBar.hidden = saved === 0;
+  // Always hidden. The per-card save button was removed on 2026-10-24, so
+  // nothing can be added to the shortlist any more; a list saved before then
+  // would otherwise bring the bar back with no way to manage it. The shortlist
+  // code is left in place so the feature can return by restoring the button.
+  dom.shortlistBar.hidden = true;
   if (saved > 0) dom.shortlistCount.textContent = `${saved} saved ${plural(saved)}`;
 }
 

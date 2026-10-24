@@ -29,7 +29,6 @@ function card(row, { state, shortlist, onToggleStar }) {
     article.classList.add(`c-${row.country.toLowerCase().replace(/[^a-z]+/g, '-')}`);
   }
   if (row.deadlinePassed) article.classList.add('is-past');
-  if (shortlist.has(row.id)) article.classList.add('is-starred');
 
   // --- heading -----------------------------------------------------------
   const head = el('div', 'card-head');
@@ -42,7 +41,8 @@ function card(row, { state, shortlist, onToggleStar }) {
   titles.append(el('p', 'card-uni', row.university));
   titles.append(el('p', 'card-place', [row.city, row.country].filter(Boolean).join(', ')));
   head.append(titles);
-  head.append(starButton(row, shortlist, onToggleStar, article));
+  // No save button. It was removed on 2026-10-24 at Jakub's request, and the
+  // shortlist it fed went with it; see the note in app.js.
 
   article.append(head);
 
@@ -150,37 +150,6 @@ function reqRow(dl, label, nodes) {
   const dd = el('dd', 'req-value');
   dd.append(...nodes);
   dl.append(dd);
-}
-
-function starButton(row, shortlist, onToggleStar, article) {
-  const button = el('button', 'star');
-  button.type = 'button';
-  setStarState(button, row, shortlist.has(row.id));
-
-  // Flip this one button rather than re-rendering every card. Rebuilding the
-  // list to change one glyph measured 172ms, and it threw away the button the
-  // user had just focused.
-  button.addEventListener('click', () => {
-    const starred = onToggleStar(row.id);
-    setStarState(button, row, starred);
-    article.classList.toggle('is-starred', starred);
-  });
-  return button;
-}
-
-function setStarState(button, row, starred) {
-  // An outline bookmark that becomes a solid one. Swapping the symbol is a
-  // content change, and content changes always take effect; a card sets
-  // content-visibility: auto, and the browser skips style recalculation inside
-  // one, so a state carried only by CSS on [aria-pressed] can paint stale.
-  // The CSS colour change rides along on top of this, not instead of it.
-  if (!button.firstChild) button.append(icon('i-bookmark'));
-  button.firstChild.firstChild.setAttribute('href', starred ? '#i-bookmark-fill' : '#i-bookmark');
-  button.setAttribute('aria-pressed', String(starred));
-  button.setAttribute(
-    'aria-label',
-    `${starred ? 'Remove' : 'Save'} ${row.programme} at ${row.university} ${starred ? 'from' : 'to'} your shortlist`
-  );
 }
 
 function provenance(row) {
