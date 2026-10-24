@@ -19,6 +19,15 @@ export function renderCards(container, rows, options) {
 
 function card(row, { state, shortlist, onToggleStar }) {
   const article = el('article', 'card');
+  // The panel tint is driven by the country, so the colour carries information
+  // rather than decorating. styles.css has a tint pair per country; a country
+  // with no pair falls back to the neutral panel, so adding one is a CSS-only
+  // change. The class sits on the card itself, which is the content-visibility
+  // containment root, so it restyles reliably — a class on a descendant would
+  // not.
+  if (row.country) {
+    article.classList.add(`c-${row.country.toLowerCase().replace(/[^a-z]+/g, '-')}`);
+  }
   if (row.deadlinePassed) article.classList.add('is-past');
   if (shortlist.has(row.id)) article.classList.add('is-starred');
 

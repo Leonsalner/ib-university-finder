@@ -34,35 +34,51 @@ const css = readFileSync(join(root, 'css/styles.css'), 'utf8');
 // `min` defaults to 4.5. It drops to 3 only where WCAG allows it: text at or
 // above 24px (or 18.66px bold), and graphical objects such as an icon.
 const PAIRS = [
-  // on the page itself
-  ['--ink',       '--page',        'body text'],
-  ['--ink-soft',  '--page',        '.tagline'],
-  ['--ink-faint', '--page',        '#masthead-stat'],
+  // on the bare page
+  ['--ink',         '--page',        'body text'],
+  ['--ink-soft',    '--page',        '.tagline'],
+  ['--ink-faint',   '--page',        '#masthead-stat'],
 
-  // on a card, the filter panel, buttons, chips, the shortlist bar, empty state
-  ['--ink',       '--surface',     '.card-title, .result-count'],
-  ['--ink-soft',  '--surface',     '.empty-state, .button-quiet'],
-  ['--ink-faint', '--surface',     '.card-place, .facts dt, .verified, .hint, .field label, .degree'],
-  ['--accent',    '--surface',     '.card-uni, .official-link'],
-  ['--save',      '--surface',     '.shortlist-count'],
+  // on the warm panel: filter rail, shortlist bar, empty state, skeletons, and
+  // a card whose country has no tint of its own
+  ['--ink',         '--surface',     '.result-count, a neutral .card-title'],
+  ['--ink-soft',    '--surface',     '.empty-state, .card-uni'],
+  ['--ink-faint',   '--surface',     '.card-place, .facts dt, .verified, .hint, .field label'],
+  ['--save',        '--surface',     '.shortlist-count'],
 
-  // on the slightly-off surface used for hover states
-  ['--ink',       '--surface-2',   '.filters > summary:hover'],
-  ['--ink-faint', '--surface-2',   '.chip:hover'],
+  // on the panel's hover shade
+  ['--ink',         '--surface-2',   '.filters > summary:hover'],
+  ['--ink-faint',   '--surface-2',   '.chip:hover'],
 
-  // on the tinted requirements block, the filters badge, the banner, a checked
-  // chip. These are the ones that get missed: the text sits on --accent-soft,
-  // not on --surface.
-  ['--accent',    '--accent-soft', '.ib-label, .req-unit, .filters-count'],
-  ['--accent',    '--accent-soft', '.req-number (29.6px, 600)', 3],
-  ['--ink-soft',  '--accent-soft', '.req-label, .req-quiet, .req-none'],
-  ['--warn',      '--accent-soft', '.req-unknown — "Not checked yet"'],
-  ['--ink',       '--accent-soft', '.banner body text'],
+  // on white: the requirements inset, and every control that sits on a panel
+  ['--ink',         '--inset',       '.field input, .button'],
+  ['--ink-soft',    '--inset',       '.req-label, .req-quiet, .req-none'],
+  ['--ink-faint',   '--inset',       '.ib-label, .req-unit, .star icon'],
+  ['--warn',        '--inset',       '.req-unknown — "Not checked yet"'],
+  ['--link',        '--inset',       '.official-link'],
+  ['--tint-nl-ink', '--inset',       '.req-number on a Dutch card (33.6px serif)', 3],
+  ['--tint-ie-ink', '--inset',       '.req-number on an Irish card (33.6px serif)', 3],
+
+  // on a Dutch card
+  ['--tint-nl-ink', '--tint-nl',     '.card-title'],
+  ['--ink',         '--tint-nl',     '.facts dd'],
+  ['--ink-soft',    '--tint-nl',     '.card-uni'],
+  ['--ink-faint',   '--tint-nl',     '.card-place, .degree, .facts dt, .verified'],
+
+  // on an Irish card
+  ['--tint-ie-ink', '--tint-ie',     '.card-title'],
+  ['--ink',         '--tint-ie',     '.facts dd'],
+  ['--ink-soft',    '--tint-ie',     '.card-uni'],
+  ['--ink-faint',   '--tint-ie',     '.card-place, .degree, .facts dt, .verified'],
+
+  // the brand accent, which appears only outside cards
+  ['--accent',      '--accent-soft', '.filters-count, a checked .chip'],
+  ['--ink',         '--accent-soft', '.banner body text'],
 
   // state surfaces
-  ['--warn',      '--warn-soft',   '.note, .badge-urgent, .badge-stale, .issues, .banner-warn'],
-  ['--danger',    '--danger-soft', '.badge-past, .badge-danger, .banner-danger'],
-  ['--save',      '--save-soft',   '.star[aria-pressed="true"] icon', 3],
+  ['--warn',        '--warn-soft',   '.note, .badge-urgent, .badge-stale, .issues, .banner-warn'],
+  ['--danger',      '--danger-soft', '.badge-past, .badge-danger, .banner-danger'],
+  ['--save',        '--save-soft',   '.star[aria-pressed="true"] icon', 3],
 ];
 
 // ----------------------------------------------------------------- the tokens

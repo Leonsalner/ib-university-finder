@@ -77,28 +77,46 @@ official page. The site says so, loudly, on a banner and on every card.
 
 ## The look of it
 
-Redesigned on 2026-08-16. The rules it follows, so a later edit does not undo
-them by accident:
+Redesigned 2026-08-16, then redirected 2026-10-24 from reference images Jakub
+supplied (a product-design portfolio: serif display type, white page, content in
+large tinted rounded panels, rose brand accent, blue links, arrow motif).
 
-- **One accent hue.** Amber and red are *states* — not checked, deadline passed
-  — and never decoration. Nothing else is coloured.
-- **Type is Geist**, loaded from Google Fonts with the full system stack behind
-  it, so a blocked or slow font costs character and nothing else. Figures use
-  `font-variant-numeric: tabular-nums` so points and fees line up column-wise
-  when two cards sit side by side.
-- **No emoji or dingbats.** Every icon is an SVG `<symbol>` in the sprite at the
-  top of `index.html`, referenced with `<use>`. The old `★`/`☆` rendered as
-  colour emoji on some platforms.
-- **Layout is asymmetric**: above 1080px the filters become a sticky rail beside
-  the results rather than a drawer above them. Below that they collapse to the
-  accordion, and `app.js` only auto-opens the panel at 1080px and up.
-- **Motion is transform and opacity only**, and the whole of it stops under
-  `prefers-reduced-motion: reduce`. Only the first ten cards animate in;
-  staggering 757 would queue animations nobody will ever see.
-- **Contrast is checked, not eyeballed.** Every text colour clears WCAG AA
-  (4.5:1) against its own background in both light and dark. `--ink-soft` and
-  `--ink-faint` both carry real text and both pass; anything paler than
-  `--ink-faint` is for rules and borders only, never for words.
+**The direction, so a later edit does not quietly undo it:**
+
+- **Two faces.** `Playfair Display` for display — the masthead, every card title,
+  the points number — and `DM Sans` for everything else. Serif is for display
+  only; it never carries UI text, labels or dense data. Both load from Google
+  Fonts with full system stacks behind them, so a blocked font costs character
+  and nothing else.
+- **White page, tinted panels.** Content sits in large soft-cornered panels
+  (`--r-xl`, 26px) with **no borders and almost no shadow** — separation comes
+  from tint and space, as in the reference. This inverts the old design, where
+  white cards with grey hairlines sat on a grey page.
+- **The panel tint carries information.** The reference gives each project card
+  its own pastel; with 757 cards arbitrary pastels would be noise, so the tint is
+  the **country**: Netherlands periwinkle (`--tint-nl`), Ireland mint
+  (`--tint-ie`). Each card's title and points number take the darker ink of its
+  own tint. The class comes from `row.country` in `js/render.js`, so a new
+  country needs a tint pair in `css/styles.css` and nothing else — Czechia would
+  just get a third.
+- **The requirements block inverted** to a white inset (`--inset`) inside the
+  tinted panel, the reverse of the old tinted block on a white card.
+- **Rose brands, blue links.** `--accent` (rose) appears only *outside* cards —
+  the masthead's full stop, a checked filter, the active-filter count — because
+  inside a card the country tint already does the colour work. `--link` (blue) is
+  for interactive text. Amber and red stay semantic and never decorate.
+- **Motion** is transform and opacity only, first ten cards only, and stops
+  entirely under `prefers-reduced-motion`.
+- **Contrast is measured, not eyeballed.** `node tools/check-contrast.mjs` —
+  58 pairs, both themes, every foreground against the background it is genuinely
+  painted on.
+
+**What was deliberately not taken from the reference.** It is a portfolio with
+six elements on a screen and enormous type. This is a data tool where one card
+carries a points total, subject requirements, a fee, a deadline, provenance and
+two links. The character transferred; the density did not. Serif stays out of the
+body text, padding is tighter than the reference, and the per-card pastel became
+a per-country system.
 
 ### Three traps this hit, all of which looked like working code
 
