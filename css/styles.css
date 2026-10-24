@@ -39,7 +39,10 @@
   --danger: #9b1c1c;
   --danger-soft: #fdeded;
   --danger-line: #f2c8c8;
-  --save: #b07d05;
+  /* Dark enough to clear 4.5:1 on white — it carries the "N saved programmes"
+     text, not just the bookmark icon. The lighter gold it used to be was
+     3.63:1. See tools/check-contrast.mjs. */
+  --save: #956900;
   --save-soft: #fdf6e4;
 
   /* shadows are tinted to the page hue, never neutral black */

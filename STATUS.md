@@ -253,8 +253,17 @@ them by accident:
 ```bash
 python -m http.server 8765      # then open http://localhost:8765
 node tools/check.mjs            # 45 checks, must end "All checks passed"
+node tools/check-contrast.mjs   # every text colour vs its real background
 node tools/make-snapshot.mjs    # rebuild data/fallback.json after data changes
 ```
+
+Run `check-contrast.mjs` after **any** change to a colour token. It reads the
+token blocks out of `css/styles.css` — so it cannot drift from the real palette
+— and checks each foreground against the background it is genuinely painted on,
+in both themes. It caught `--save` at 3.63:1 on white the first time it ran,
+which a careful manual sweep had missed because that element was only ever
+measured in dark mode. If it fails, darken the foreground or lighten its
+background; do not lower the minimum.
 
 The importers are one-off and already run; their output is merged into
 `data/programmes.csv`. Re-run one only to refresh a university:
