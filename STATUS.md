@@ -277,11 +277,22 @@ a per-country system.
 ## Running it
 
 ```bash
-python -m http.server 8765      # then open http://localhost:8765
+node tools/serve.mjs            # then open http://localhost:8765
 node tools/check.mjs            # 45 checks, must end "All checks passed"
 node tools/check-contrast.mjs   # every text colour vs its real background
 node tools/make-snapshot.mjs    # rebuild data/fallback.json after data changes
 ```
+
+**Use `tools/serve.mjs`, not `python -m http.server`.** Python's server sends no
+`Cache-Control` header at all, only `Last-Modified`, and with no Cache-Control a
+browser falls back to heuristic caching and can serve a stale file without
+revalidating. That is not hypothetical: after the dark palette was deleted, the
+server was serving the new stylesheet and Brave was still painting the old one.
+Adding `?v=N` to the page URL does not help, because the stylesheet is a separate
+request with its own cache entry. `serve.mjs` sends `no-store` on everything, so
+a reload always shows what is on disk. It is a development server only — no-store
+on every response would be wrong in production, and GitHub Pages sets its own
+sensible headers.
 
 Run `check-contrast.mjs` after **any** change to a colour token. It reads the
 token blocks out of `css/styles.css` — so it cannot drift from the real palette
