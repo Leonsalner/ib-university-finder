@@ -835,12 +835,6 @@ svg:not(.sprite) {
   .results, .skeletons { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 }
 
-/* With the filters above the results instead of beside them, the full width is
-   free for cards from 1080px. */
-@media (min-width: 1080px) {
-  .results, .skeletons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
 /* On a touch screen the controls grow to a 44px target. Hover styling is
    dropped too — on touch it sticks after a tap and reads as selected. */
 @media (pointer: coarse) {
