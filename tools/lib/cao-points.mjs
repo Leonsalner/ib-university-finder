@@ -96,10 +96,9 @@ export function caoNote(entry) {
 
   // The latest round is the one quoted — Round 2 where there was one, which is
   // lower than the Round 1 figure universities tend to advertise.
-  const parts = [
-    `${year} CAO cutoff: ${latest.points} points (code ${entry.code}).`,
-    'Changes yearly — not a guaranteed minimum.',
-  ];
+  // "Changes yearly — not a guaranteed minimum" used to follow on every card;
+  // removed 2026-10-25 at Jakub's request as noise repeated 500 times.
+  const parts = [`${year} CAO cutoff: ${latest.points} points (code ${entry.code}).`];
   if (latest.notAll) parts.push('Some applicants on that score missed out (random draw).');
   return parts.join(' ');
 }

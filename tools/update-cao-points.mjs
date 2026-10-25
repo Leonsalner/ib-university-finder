@@ -29,7 +29,7 @@ const CODE_BY_ID = { 'maynooth-bachelor-of-science': 'MH201' };
 
 // Every sentence the importers wrote from the CAO table. Removed and rebuilt.
 const OLD = [
-  /\d{4} CAO cutoff: \d+ points \(code [A-Z]{2}\d{3}\)\. Changes yearly — not a guaranteed minimum\.( Some applicants on that score missed out \(random draw\)\.)?/,
+  /\d{4} CAO cutoff: \d+ points \(code [A-Z]{2}\d{3}\)\.( Changes yearly — not a guaranteed minimum\.)?( Some applicants on that score missed out \(random draw\)\.)?/,
   /\d{4}: every qualified applicant got a place \(code [A-Z]{2}\d{3}\) — no cutoff\./,
   /No \d{4} cutoff published \(code [A-Z]{2}\d{3}\)\./,
   /UCD lists a \d+ point CAO cutoff for \d{4}( under code [A-Z]{2}\d{3})?\./,
