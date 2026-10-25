@@ -23,7 +23,8 @@
 // subjects, each pairing listed as its own programme; including them would
 // add a hundred near-identical cards for one kind of degree.
 
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { csvToObjects } from '../js/csv.js';
 import { getHtml, czText, toRow, idMaker, czkPerEur, toEur, czkAmount, czechDate } from './lib/czechia.mjs';
 import { areasForCz } from './lib/czech-areas.mjs';
 
@@ -154,7 +155,29 @@ function czechLanguage(sis) {
 
 const CITY = { Praha: 'Prague', Plzeň: 'Plzeň', 'Hradec Králové': 'Hradec Králové' };
 
-const nextId = idMaker('cuni');
+// programme_id must never change once published. Five programmes are called
+// "General Medicine" and three "Dentistry", so an id built from the name gets
+// its -2/-3 suffix from catalogue order — and the finder does not return the
+// same order twice. A re-run on 2026-10-25 swapped faculties and cities
+// between ids that way. So an id already in data/programmes.csv is reused for
+// the same SIS record (id_obor), and only a record never seen before gets a
+// new name-based id.
+const sisKey = (url) => (url.match(/id_obor=(\d+)/) || [])[1];
+const knownIds = new Map(
+  csvToObjects(readFileSync(new URL('../data/programmes.csv', import.meta.url), 'utf8'), 'programmes').rows
+    .filter((r) => r.university_id === 'cuni')
+    .map((r) => [sisKey(r.official_url), r.programme_id]),
+);
+const takenIds = new Set(knownIds.values());
+const makeId = idMaker('cuni');
+const nextId = (name, url) => {
+  const known = knownIds.get(sisKey(url));
+  if (known) return known;
+  let id;
+  do id = makeId(name); while (takenIds.has(id));
+  takenIds.add(id);
+  return id;
+};
 const rows = [];
 const skipped = { notFullTime: 0, noSis: 0 };
 
@@ -184,6 +207,18 @@ for (const [id, card] of singles) {
   }
   if (english && tuition === '') tuition = '?';    // English-taught is never free
 
+  // SIS can qualify the headline fee in a note. Computer Science: headline
+  // 7500 EUR, note "The tuition fee for students from the EU/EEA/Ukraine is
+  // 4200 EUR". Science: headline 3000 EUR, note "Pro studenty z oblastí mimo
+  // EU/EHP/Ukrajiny činí poplatek 6000 EUR". The headline alone put the
+  // non-EU figure on the CS card until a re-check caught it (2026-10-25).
+  let tuitionNonEu = '';
+  const sisFeeNote = (sis.match(/Poznámka k poplatku[^:]*: (.{0,240})/) || [])[1] || '';
+  const euRate = sisFeeNote.match(/students from the EU\S*[^.]{0,40}? is (\d[\d ,]*) EUR/i);
+  const nonEuRate = sisFeeNote.match(/mimo EU\S*[^.]{0,40}? činí poplatek (\d[\d ,]*) EUR/i);
+  if (euRate && typeof tuition === 'number') { tuitionNonEu = tuition; tuition = czkAmount(euRate[1]); }
+  if (nonEuRate) tuitionNonEu = czkAmount(nonEuRate[1]);
+
   // Three FTVS entries (Fyzioterapie, Trenér, Kondiční trenér) say "Jazyk
   // výuky: čeština" and also carry a "Poplatek za studium v cizím jazyce" — a
   // fee for study in a foreign language. Charles's pages contradict
@@ -195,7 +230,7 @@ for (const [id, card] of singles) {
 
   const hand = BY_HAND[id] ?? {};
   rows.push(toRow({
-    programme_id: nextId(card.name),
+    programme_id: nextId(card.name, sisUrl),
     university_id: 'cuni',
     city: city === 'Prague' ? '' : city,
     programme: card.name,
@@ -206,6 +241,7 @@ for (const [id, card] of singles) {
     ib_subjects: hand.ib_subjects ?? '',
     admission: hand.admission ?? admissionFor(sis).join(' · '),
     tuition_eu: tuition,
+    tuition_noneu: tuitionNonEu,
     english_requirement: hand.english_requirement ?? (english ? '' : czechLanguage(sis)),
     application_deadline: deadline,
     deadline_notes: [places ? `About ${places} places.` : '', hand.note, feeNote].filter(Boolean).join(' '),

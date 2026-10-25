@@ -30,9 +30,10 @@ const FACULTIES = [
     // ffu.vse.cz/uchazeci-bakalarske-studium/prijimaci-rizeni: tests "z
     // matematiky a angličtiny"; the dean waives the exam for applicants who
     // sit "maturitní zkoušku z českého nebo slovenského jazyka", on grades.
+    // Timeline (published by 2026-10-25): "30. 4. 2027 Uzávěrka přihlášek".
     url: 'https://ffu.vse.cz/uchazeci-bakalarske-studium/prijimaci-rizeni/',
+    deadline: '2027-04-30',
     admission: 'Entrance exam: maths and English tests · Waived on school grades if you sit a Czech or Slovak maturita',
-    note: NOT_YET,
     programmes: ['Bankovnictví a pojišťovnictví', 'Finance', 'Účetnictví a finanční řízení podniku', 'Zdanění a daňová politika'],
   },
   {

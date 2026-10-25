@@ -78,10 +78,14 @@ function czechAdmission(adm) {
   if (practical) parts.push('Practical or talent exam (see faculty page)');
   if (/pohovor/i.test(adm)) parts.push('Interview');
 
-  // "Přijetí bez přijímací zkoušky není možné" is the one place the waiver
-  // wording appears in the negative — dentistry.
-  if (!/bez přijímací zkoušky není možné/.test(adm)
-      && /prominut|na základě dalších kritérií|bez přijímací zkoušky/i.test(adm)) {
+  // The waiver heading "Přijetí bez přijímací zkoušky" appears on almost every
+  // page, including those where the next words say it is not possible:
+  // "(prominutí přijímací zkoušky) není možné" on the medical faculty's
+  // health programmes, "není možné prominout přijímací zkoušku" on several
+  // Faculty of Arts ones. The heading alone wrote "can be waived" on all of
+  // them until a second check caught it on 2026-10-25.
+  const noWaiver = /přijímací zkoušky\)? není možné|není možné prominout/.test(adm);
+  if (!noWaiver && /prominut|na základě dalších kritérií|bez přijímací zkoušky/i.test(adm)) {
     parts.push('Exam can be waived on set criteria');
   }
   return parts;
@@ -124,7 +128,7 @@ for (const [key, { area }] of programmes) {
   const areas = areasFor(enSlug.replace(/-/g, ' '));
 
   const at = html.indexOf('id="prijimaci-rizeni"');
-  const admission = at > 0 ? czechAdmission(czText(html.slice(at, at + 4000))) : [];
+  const admission = at > 0 ? czechAdmission(czText(html.slice(at, at + 9000))) : [];
   if (!admission.length) noAdmission++;
 
   rows.push(toRow({

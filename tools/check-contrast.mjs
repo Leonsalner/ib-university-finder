@@ -59,6 +59,8 @@ const PAIRS = [
   ['--tint-nl-ink', '--inset',       '.req-number on a Dutch card (33.6px serif)', 3],
   ['--tint-ie-ink', '--inset',       '.req-number on an Irish card (33.6px serif)', 3],
   ['--tint-cz-ink', '--inset',       '.req-number on a Czech card (33.6px serif)', 3],
+  ['--tint-it-ink', '--inset',       '.req-number on an Italian card (33.6px serif)', 3],
+  ['--tint-dk-ink', '--inset',       '.req-number on a Danish card (33.6px serif)', 3],
 
   // on a Dutch card
   ['--tint-nl-ink', '--tint-nl',     '.card-title'],
@@ -77,6 +79,18 @@ const PAIRS = [
   ['--ink',         '--tint-cz',     '.facts dd'],
   ['--ink-soft',    '--tint-cz',     '.card-uni'],
   ['--ink-faint',   '--tint-cz',     '.card-place, .degree, .facts dt, .verified'],
+
+  // on an Italian card
+  ['--tint-it-ink', '--tint-it',     '.card-title'],
+  ['--ink',         '--tint-it',     '.facts dd'],
+  ['--ink-soft',    '--tint-it',     '.card-uni'],
+  ['--ink-faint',   '--tint-it',     '.card-place, .degree, .facts dt, .verified'],
+
+  // on a Danish card
+  ['--tint-dk-ink', '--tint-dk',     '.card-title'],
+  ['--ink',         '--tint-dk',     '.facts dd'],
+  ['--ink-soft',    '--tint-dk',     '.card-uni'],
+  ['--ink-faint',   '--tint-dk',     '.card-place, .degree, .facts dt, .verified'],
 
   // the brand accent, which appears only outside cards
   ['--accent',      '--accent-soft', '.filters-count, a checked .chip'],

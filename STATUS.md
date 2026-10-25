@@ -8,13 +8,36 @@ pick it up without re-deriving decisions. Update it when the state changes.
 
 ## State
 
-1181 programmes · 25 universities · 3 countries · all checks passing.
+1245 programmes · 35 universities · 5 countries · all checks passing.
 
 | Country | Universities | Programmes | Notes |
 |---|---|---|---|
 | Netherlands | 13 | 202 | **Complete** — every Dutch research university |
-| Ireland | 7 | 555 | **Complete** — every Irish university |
+| Ireland | 7 | 548 | **Complete** — every Irish university |
 | Czechia | 5 | 424 | **The big five**, added 2026-10-24 — Czech- and English-taught |
+| Italy | 5 | 46 | English-taught only — Bologna, Sapienza, Bocconi, PoliMi, PoliTo |
+| Denmark | 5 | 25 | English-taught only — CBS, Aarhus, SDU, Aalborg, DTU |
+
+Italy and Denmark were researched by a second model (CAS/verification/) and
+merged on 2026-10-25 by `tools/merge-italy-denmark.mjs`, which records what
+was re-checked and corrected. Italian rows are thin on purpose: no Italian
+university publishes an IB minimum, 2027/28 round dates are not out, and
+public fees depend on family income (ISEE), so deadlines and fees show "Not
+published". The University of Copenhagen has no rows because it teaches every
+bachelor in Danish.
+
+**Second-model verification (2026-10-25).** The same run checked all 1,181
+existing rows. Every claimed error was re-checked against the official page
+before it was applied; `tools/apply-verification-2026-10-25.mjs` lists each
+change with its source, and the three claims that did not survive. Main
+results: Dutch statutory fee is €2,771 for 2027/28 (was €2,694); Galway's
+2027/28 Free Fees figure is €2,500/€2,700 on every course page; DCU's non-EU
+fees all rose; seven Irish rows removed (Maynooth's discontinued MH601–603, a
+dead Galway course, a part-time DCU course); Masaryk's importer was writing
+"exam can be waived" where the page says "není možné" (19 rows fixed); Charles
+CS's EU fee is €4,200, not the €7,500 headline. The Charles importer now keeps
+each programme's id tied to its SIS record — a re-run had reshuffled the
+ids of same-named programmes (five "General Medicine") between faculties.
 
 Czechia breaks down as Charles 165, Masaryk 145, ČVUT 46, VUT 42, VŠE 26.
 Full-time bachelor and long-cycle master's (medicine, law, pharmacy) only.
@@ -63,7 +86,11 @@ initials and it reads "Checked <date> by <initials>".
    2027 round. Their rows carry no deadline and their admission line says
    `(2026 rules)`. Re-run `tools/import-cvut.mjs` and `tools/import-vse.mjs`
    after their pages update (usually by November), and fill the tables there.
-5. **Living costs.** Blank for all 25 universities. Nineteen numbers would
+5. **CAO 2026 points are out.** The CAO table now shows 2026 Round 1 and 2
+   cutoffs; every Irish row still quotes 2025's. Re-running the Irish
+   importers would refresh them — check the id stability first, as with
+   Charles.
+6. **Living costs.** Blank for all 35 universities. Nineteen numbers would
    improve the tuition filter more than anything else, because rent dwarfs
    tuition everywhere in this dataset.
 

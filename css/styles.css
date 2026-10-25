@@ -56,6 +56,10 @@
   --tint-ie-ink: #1a5437;
   --tint-cz: #f1edf8;
   --tint-cz-ink: #4b2d7f;
+  --tint-it: #fcefe6;
+  --tint-it-ink: #8a3410;
+  --tint-dk: #e5f3f3;
+  --tint-dk-ink: #0e5a5e;
 
   /* The inset inside a tinted panel — white, because the panel is tinted. The
      inverse of the old design, where a tinted block sat on a white card. */
@@ -527,6 +531,12 @@ svg:not(.sprite) {
 .c-czechia { background: var(--tint-cz); }
 .c-czechia .card-title,
 .c-czechia .req-number { color: var(--tint-cz-ink); }
+.c-italy { background: var(--tint-it); }
+.c-italy .card-title,
+.c-italy .req-number { color: var(--tint-it-ink); }
+.c-denmark { background: var(--tint-dk); }
+.c-denmark .card-title,
+.c-denmark .req-number { color: var(--tint-dk-ink); }
 .card.is-past { opacity: 0.65; }
 .card.is-past:hover { opacity: 1; }
 
