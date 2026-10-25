@@ -13,9 +13,10 @@
 //     The CBS and DTU drafts said 5 July.
 //   * DTU: "IB Diploma with at least 24 points qualifies" — added; its URL now
 //     points at the English admission page.
-//   * Bocconi: the fees page gives only 2026-27, "€ 17,000 per year". The
-//     draft's 17,700 for 2027/28 is published nowhere, so the fee is "?" and
-//     the note gives last year's.
+//   * Bocconi: the fee here was set to "?" on 2026-10-25 from the
+//     current-students page (2026-27 only). That was wrong — the applicants'
+//     page states €17,700 for 2027-28 — and the rows were corrected the
+//     same day, outside this script.
 //   * Bocconi WBB partners are USC Marshall and HKUST, not Emory and Wuhan.
 //   * Bologna Veterinary Medicine: "Duration 5 years", not six.
 //   * Italian public fees are set by family income (ISEE), so there is no one
