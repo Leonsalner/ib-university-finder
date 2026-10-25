@@ -94,7 +94,18 @@ const PROGRAMME = {
   'Civil Engineering': { admission: 'Documents · Online interview (no written exam)', tuition: '?' },
   // Closes on 4 January, months before FAST's other programmes, so the
   // grade-average rule cannot be assumed to apply. Not read further.
-  'Architektura pozemních staveb': { admission: '' },
+  // Re-checked 2026-10-25, because two VUT sources disagree. The programme's
+  // own page (fce.vut.cz/pro-uchazece/prijimacky/architektura-pozemnich-staveb.
+  // BPC-APS): "Přijímání přihlášek 1. září 2026 – 2. ledna 2027 … Kvůli
+  // talentovkám je termín už na přelomu roku"; fee "do 7. ledna 2027". The
+  // e-application shows "do 4. 1. 2027" — 2 January 2027 is a Saturday, and
+  // the portal stays open to the next working day. The faculty's date wins.
+  'Architektura pozemních staveb': {
+    url: 'https://www.fce.vut.cz/pro-uchazece/prijimacky/architektura-pozemnich-staveb.BPC-APS',
+    deadline: '2027-01-02',
+    admission: 'Talent exam (see the faculty page)',
+    note: 'The faculty gives 2 January; the e-application stays open until 4 January because the 2nd is a Saturday. Fee due by 7 January.',
+  },
   // fekt.vut.cz/en/applicants/studies_in_english/fees: "EUR 1,000 for EU and
   // Ukrainian students". No 2027 closing date on the English pages.
   'Electrical Engineering': {

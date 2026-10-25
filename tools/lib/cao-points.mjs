@@ -53,6 +53,12 @@ export async function fetchCaoPoints() {
   const text = html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
   const map = new Map();
 
+  // The table is replaced in place each August, so the year is read off its
+  // heading ("Points Required for Entry to 2026 Level 8 Courses") rather than
+  // assumed. Every note says which year's cutoff it quotes.
+  const year = Number((text.match(/Points Required for Entry to (\d{4})/) || [])[1]);
+  if (!year) throw new Error('CAO points table has no year in its heading — its layout has changed.');
+
   for (const line of text.split('\n')) {
     // CODE, two-plus spaces, title, two-plus spaces, then one or two values.
     const m = line.match(/^([A-Z]{2}\d{3})\s\s+(\S.*?)\s\s+(\S.*?)\s*$/);
@@ -61,7 +67,7 @@ export async function fetchCaoPoints() {
     const [r1, r2] = tail.split(/\s\s+/).map(parseValue);
     const latest = r2 ?? r1;
     if (!latest) continue;
-    map.set(code, { code, title: title.trim(), round1: r1, round2: r2 ?? null, latest });
+    map.set(code, { code, year, title: title.trim(), round1: r1, round2: r2 ?? null, latest });
   }
 
   if (map.size < 500) {
@@ -79,19 +85,19 @@ export async function fetchCaoPoints() {
 // gets no sentence here, because the importers already tag it under "Other".
 export function caoNote(entry) {
   if (!entry) return null;
-  const { latest } = entry;
+  const { latest, year } = entry;
 
   if (latest.aqa) {
-    return `2025: every qualified applicant got a place (code ${entry.code}) — no cutoff.`;
+    return `${year}: every qualified applicant got a place (code ${entry.code}) — no cutoff.`;
   }
   if (latest.points === null) {
-    return `No 2025 cutoff published (code ${entry.code}).`;
+    return `No ${year} cutoff published (code ${entry.code}).`;
   }
 
   // The latest round is the one quoted — Round 2 where there was one, which is
   // lower than the Round 1 figure universities tend to advertise.
   const parts = [
-    `2025 CAO cutoff: ${latest.points} points (code ${entry.code}).`,
+    `${year} CAO cutoff: ${latest.points} points (code ${entry.code}).`,
     'Changes yearly — not a guaranteed minimum.',
   ];
   if (latest.notAll) parts.push('Some applicants on that score missed out (random draw).');

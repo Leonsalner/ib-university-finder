@@ -26,6 +26,16 @@ public fees depend on family income (ISEE), so deadlines and fees show "Not
 published". The University of Copenhagen has no rows because it teaches every
 bachelor in Danish.
 
+**Four points the two runs disagreed on, re-fetched a third time
+(2026-10-25):** VUT Architektura pozemních staveb closes **2 January** (the
+faculty's date; the portal stays open to 4 January because the 2nd is a
+Saturday). Galway's IB bands (26–36+) are published by its international
+office, and its course pages send EU applicants through the CAO — kept the
+CAO conversions, with a band note on the four rows below their band.
+Maynooth MH201: CAO deadline 1 February; the 1 July on its page is the CAO
+Change of Mind date (2027 Handbook). Denmark: IB applicants apply by 15 March
+(CBS: "always 15 March, 12:00 noon"; DTU lists IB applicants under 15 March).
+
 **Second-model verification (2026-10-25).** The same run checked all 1,181
 existing rows. Every claimed error was re-checked against the official page
 before it was applied; `tools/apply-verification-2026-10-25.mjs` lists each
@@ -86,10 +96,12 @@ initials and it reads "Checked <date> by <initials>".
    2027 round. Their rows carry no deadline and their admission line says
    `(2026 rules)`. Re-run `tools/import-cvut.mjs` and `tools/import-vse.mjs`
    after their pages update (usually by November), and fill the tables there.
-5. **CAO 2026 points are out.** The CAO table now shows 2026 Round 1 and 2
-   cutoffs; every Irish row still quotes 2025's. Re-running the Irish
-   importers would refresh them — check the id stability first, as with
-   Charles.
+5. **CAO cutoffs are 2026's** (refreshed 2026-10-25 by
+   `tools/update-cao-points.mjs`, which updates Irish rows in place rather
+   than re-running the importers). Re-run it each August when the CAO
+   replaces the table. The IB→points conversion is CAO's 2026 table (45/44 →
+   600 … 24 → 350, +25 for HL Maths 4+), checked against the published image;
+   the 2027 table is not out yet.
 6. **Living costs.** Blank for all 35 universities. Nineteen numbers would
    improve the tuition filter more than anything else, because rent dwarfs
    tuition everywhere in this dataset.
